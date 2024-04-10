@@ -24,7 +24,6 @@ import {
 } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { DropdownMenuItem } from "../ui/dropdown-menu";
 import { useForm } from "react-hook-form";
 import { register } from "@/lib/auth/actions";
 
@@ -66,14 +65,12 @@ export function Register() {
     <>
       <Drawer open={open} onOpenChange={setOpen}>
         <DrawerTrigger asChild>
-          <DropdownMenuItem asChild>
-            <Button
-              variant="ghost"
-              className="justify-start relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full"
-            >
-              {text.button}
-            </Button>
-          </DropdownMenuItem>
+          <Button
+            variant="ghost"
+            className="justify-start relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full"
+          >
+            {text.button}
+          </Button>
         </DrawerTrigger>
         <DrawerContent>
           <DrawerHeader className="text-left">
