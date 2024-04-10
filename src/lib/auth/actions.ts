@@ -1,5 +1,5 @@
 "use server";
-import { z } from "zod";
+import { ZodError } from "zod";
 import { generateId } from "lucia";
 import { db } from "../db";
 import { userTable } from "../schema";
@@ -8,57 +8,88 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import argon2 from "argon2";
 import { eq } from "drizzle-orm";
-
-const usernameSchema = z
-  .string()
-  .min(5, { message: "username has to be 5 characters long" })
-  .max(24, { message: "username has to be shorter than 24 characters" })
-  .regex(/^[a-z0-9_-]+$/, {
-    message: "username cannot use special characters",
-  });
-
-const passwordSchema = z.string().min(10).max(128);
+import {
+  usernameSchema,
+  passwordSchema,
+  registerFormSchema,
+} from "./validation";
 
 type ActionResult = { error: string };
+export type ActionState =
+  | {
+      status: "ok";
+    }
+  | {
+      status: "error";
+      message: string;
+      errors?: Array<{
+        path: string;
+        message: string;
+      }>;
+    }
+  | null;
 
-export async function register(formData: FormData): Promise<ActionResult> {
-  const username = formData.get("username");
+export async function register(
+  prevState: ActionState | null,
+  data: FormData
+): Promise<ActionState> {
+  try {
+    const { username, password } = registerFormSchema.parse(data);
 
-  const usernameValidityTest = usernameSchema.safeParse(username);
+    const hashedPassword = await argon2.hash(password);
+    const userId = generateId(15);
 
-  if (typeof username !== "string" || !usernameValidityTest.success) {
+    const existingUser = await db.query.userTable.findFirst({
+      where: (user, { eq }) => eq(user.username, username),
+    });
+
+    if (existingUser) {
+      return {
+        status: "error",
+        message: "user with that username already exists",
+        errors: [
+          {
+            path: "username",
+            message: "user with that username already exists",
+          },
+        ],
+      };
+    }
+
+    await db.insert(userTable).values({
+      id: userId,
+      username: username,
+      hashed_password: hashedPassword,
+    });
+
+    const session = await lucia.createSession(userId, {});
+    const sessionCookie = lucia.createSessionCookie(session.id);
+    cookies().set(
+      sessionCookie.name,
+      sessionCookie.value,
+      sessionCookie.attributes
+    );
+
     return {
-      error: "invalid username",
+      status: "ok",
+    };
+  } catch (e) {
+    if (e instanceof ZodError) {
+      return {
+        status: "error",
+        message: "invalid form data",
+        errors: e.issues.map((issue) => ({
+          path: issue.path.join("."),
+          message: `server validation: ${issue.message}`,
+        })),
+      };
+    }
+
+    return {
+      status: "error",
+      message: "something went wrong. please try again",
     };
   }
-
-  const password = formData.get("password");
-  const passwordValidityTest = passwordSchema.safeParse(password);
-
-  if (typeof password !== "string" || !passwordValidityTest.success) {
-    return {
-      error: "invalid password",
-    };
-  }
-
-  const hashedPassword = await argon2.hash(password);
-  const userId = generateId(15);
-
-  await db.insert(userTable).values({
-    id: userId,
-    username: username,
-    hashed_password: hashedPassword,
-  });
-
-  const session = await lucia.createSession(userId, {});
-  const sessionCookie = lucia.createSessionCookie(session.id);
-  cookies().set(
-    sessionCookie.name,
-    sessionCookie.value,
-    sessionCookie.attributes
-  );
-
-  redirect("/dashboard");
 }
 
 export async function login(formData: FormData): Promise<ActionResult> {

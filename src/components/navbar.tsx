@@ -16,6 +16,7 @@ import { Button } from "./ui/button";
 import clsx from "clsx";
 import React, { useState } from "react";
 import { Register } from "./auth/register";
+import { useRouter } from "next/navigation";
 
 function NavbarLink({
   href,
@@ -50,6 +51,8 @@ export function Navbar() {
   const greetings = ["Hello", "Howdy", "Welcome", "Hiya", "Hey", "Hey there"];
 
   const [greeting, setGreeting] = useState("Howdy");
+
+  const router = useRouter();
 
   return (
     <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
@@ -87,42 +90,52 @@ export function Navbar() {
       </Sheet>
       <div className="flex w-full flex-1 justify-items-end">
         <div className="ml-auto flex-1 sm:flex-initial"></div>
-        <DropdownMenu
-          onOpenChange={(open) => {
-            if (open) {
-              const randomIndex = Math.floor(Math.random() * greetings.length);
-              const selectedGreeting = greetings[randomIndex];
-              setGreeting(selectedGreeting);
-            }
-          }}
-        >
-          <DropdownMenuTrigger asChild>
-            <Button variant="secondary" size="icon" className="rounded-full">
-              <CircleUser className="h-5 w-5" />
-              <span className="sr-only">Toggle user menu</span>
-            </Button>
-          </DropdownMenuTrigger>
-          {user ? (
+        {user ? (
+          <DropdownMenu
+            onOpenChange={(open) => {
+              if (open) {
+                const randomIndex = Math.floor(
+                  Math.random() * greetings.length
+                );
+                const selectedGreeting = greetings[randomIndex];
+                setGreeting(selectedGreeting);
+              }
+            }}
+          >
+            <DropdownMenuTrigger asChild>
+              <Button variant="secondary" size="icon" className="rounded-full">
+                <CircleUser className="h-5 w-5" />
+                <span className="sr-only">Toggle user menu</span>
+              </Button>
+            </DropdownMenuTrigger>
+
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>
                 {greeting}, {user.username}!
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>something</DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard">Dashboard</Link>
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Logout</DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() =>
+                  fetch("/api/auth/signout").then(() => {
+                    refetchUser();
+                    router.refresh();
+                  })
+                }
+              >
+                Logout
+              </DropdownMenuItem>
             </DropdownMenuContent>
-          ) : (
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Not logged in</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-
-              <Register />
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Logout</DropdownMenuItem>
-            </DropdownMenuContent>
-          )}
-        </DropdownMenu>
+          </DropdownMenu>
+        ) : (
+          <>
+            <Button variant={"link"}>login</Button>
+            <Register />
+          </>
+        )}
       </div>
     </header>
   );

@@ -24,15 +24,30 @@ import {
 } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useForm } from "react-hook-form";
-import { register } from "@/lib/auth/actions";
+import {
+  FieldErrors,
+  FieldPath,
+  UseFormRegister,
+  useForm,
+} from "react-hook-form";
+import { ActionState, register } from "@/lib/auth/actions";
+import { registerFormSchema } from "@/lib/auth/validation";
+import { atom, useAtom, useSetAtom } from "jotai";
+import { useFormState, useFormStatus } from "react-dom";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ErrorMessage } from "@hookform/error-message";
+import { z } from "zod";
+
+const openAtom = atom(false);
 
 export function Register() {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useAtom(openAtom);
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const text = {
-    button: "Register",
+    button: "register",
     title: "Welcome to yals!",
     description:
       "We're so happy to see you here! Create an account to get started making short links!",
@@ -43,18 +58,14 @@ export function Register() {
       <>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button
-              variant="ghost"
-              className="justify-start relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full"
-            >
-              {text.button}
-            </Button>
+            <Button variant="link">{text.button}</Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>{text.title}</DialogTitle>
               <DialogDescription>{text.description}</DialogDescription>
             </DialogHeader>
+            <RegisterForm className="px-4" />
           </DialogContent>
         </Dialog>
       </>
@@ -65,12 +76,7 @@ export function Register() {
     <>
       <Drawer open={open} onOpenChange={setOpen}>
         <DrawerTrigger asChild>
-          <Button
-            variant="ghost"
-            className="justify-start relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full"
-          >
-            {text.button}
-          </Button>
+          <Button variant="link">{text.button}</Button>
         </DrawerTrigger>
         <DrawerContent>
           <DrawerHeader className="text-left">
@@ -89,28 +95,86 @@ export function Register() {
   );
 }
 
-interface FormValues {
-  username: string;
-  password: string;
+type FormValues = z.infer<typeof registerFormSchema>;
+
+function RegisterFormContent({
+  register,
+  isValid,
+  errors,
+}: {
+  register: UseFormRegister<FormValues>;
+  isValid: boolean;
+  errors: FieldErrors<FormValues>;
+}) {
+  const { pending } = useFormStatus();
+  return (
+    <>
+      <div className="grid gap-2">
+        <Label htmlFor="username">Username</Label>
+        <Input {...register("username")} placeholder="thatgurkangurk" />{" "}
+        <ErrorMessage name="username" errors={errors} />
+      </div>
+      <div className="grid gap-2">
+        <Label htmlFor="password">Password</Label>
+        <Input {...register("password")} type="password" />{" "}
+        <ErrorMessage name="password" errors={errors} />
+      </div>
+      <div className="grid gap-2 pb-48 md:pb-0">
+        <Label htmlFor="passwordConfirm">Confirm Password</Label>
+        <Input {...register("passwordConfirm")} type="password" />{" "}
+        <ErrorMessage name="passwordConfirm" errors={errors} />
+      </div>
+      <Button type="submit" disabled={pending || !isValid}>
+        Register
+      </Button>
+      {pending && <span>loading...</span>}
+    </>
+  );
 }
 
 export function RegisterForm({ className }: React.ComponentProps<"form">) {
-  const { register: formRegister } = useForm<FormValues>();
+  const router = useRouter();
+  const setOpen = useSetAtom(openAtom);
+  const {
+    register: formRegister,
+    formState: { isValid, errors },
+    setError,
+  } = useForm<FormValues>({
+    mode: "all",
+    resolver: zodResolver(registerFormSchema),
+  });
+  const [state, formAction] = useFormState<ActionState, FormData>(
+    register,
+    null
+  );
+
+  useEffect(() => {
+    if (!state) return;
+
+    if (state.status === "error") {
+      state.errors?.forEach((error) => {
+        setError(error.path as FieldPath<FormValues>, {
+          message: error.message,
+        });
+      });
+    }
+
+    if (state.status === "ok") {
+      setOpen(false);
+      router.push("/dashboard");
+    }
+  }, [router, setError, setOpen, state]);
 
   return (
-    <form className={cn("grid items-start gap-4", className)} action={register}>
-      <div className="grid gap-2">
-        <Label htmlFor="username">Username</Label>
-        <Input
-          {...formRegister("username")}
-          placeholder="thatgurkangurk"
-        />{" "}
-      </div>{" "}
-      <div className="grid gap-2">
-        <Label htmlFor="password">Password</Label>
-        <Input {...formRegister("password")} type="password" />{" "}
-      </div>
-      <Button type="submit">Register</Button>
+    <form
+      className={cn("grid items-start gap-4", className)}
+      action={formAction}
+    >
+      <RegisterFormContent
+        register={formRegister}
+        isValid={isValid}
+        errors={errors}
+      />
     </form>
   );
 }
