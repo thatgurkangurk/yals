@@ -8,11 +8,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import argon2 from "argon2";
 import { eq } from "drizzle-orm";
-import {
-  usernameSchema,
-  passwordSchema,
-  registerFormSchema,
-} from "./validation";
+import { registerFormSchema, loginFormSchema } from "./validation";
 
 type ActionResult = { error: string };
 export type ActionState =
@@ -92,60 +88,89 @@ export async function register(
   }
 }
 
-export async function login(formData: FormData): Promise<ActionResult> {
-  const username = formData.get("username");
+export async function login(
+  prevState: ActionState | null,
+  data: FormData
+): Promise<ActionState> {
+  try {
+    const { username, password } = loginFormSchema.parse(data);
 
-  const usernameValidityTest = usernameSchema.safeParse(username);
+    const existingUser = (
+      await db
+        .select()
+        .from(userTable)
+        .where(eq(userTable.username, username))
+        .limit(1)
+    )[0];
 
-  if (typeof username !== "string" || !usernameValidityTest.success) {
+    if (!existingUser) {
+      const hashedPassword = argon2.hash(password); // hash the password to pretend that an account with that username exists (for security against brute-force attacks)
+      return {
+        status: "error",
+        message: "incorrect username or password",
+        errors: [
+          {
+            path: "username",
+            message: "incorrect username or password",
+          },
+          {
+            path: "password",
+            message: "incorrect username or password",
+          },
+        ],
+      };
+    }
+
+    const isPasswordValid = await argon2.verify(
+      existingUser.hashed_password,
+      password
+    );
+
+    if (!isPasswordValid) {
+      return {
+        status: "error",
+        message: "incorrect username or password",
+        errors: [
+          {
+            path: "username",
+            message: "incorrect username or password",
+          },
+          {
+            path: "password",
+            message: "incorrect username or password",
+          },
+        ],
+      };
+    }
+
+    const session = await lucia.createSession(existingUser.id, {});
+    const sessionCookie = lucia.createSessionCookie(session.id);
+    cookies().set(
+      sessionCookie.name,
+      sessionCookie.value,
+      sessionCookie.attributes
+    );
+
     return {
-      error: "invalid username",
+      status: "ok",
+    };
+  } catch (e) {
+    if (e instanceof ZodError) {
+      return {
+        status: "error",
+        message: "invalid form data",
+        errors: e.issues.map((issue) => ({
+          path: issue.path.join("."),
+          message: `server validation: ${issue.message}`,
+        })),
+      };
+    }
+
+    return {
+      status: "error",
+      message: "something went wrong. please try again",
     };
   }
-
-  const password = formData.get("password");
-  const passwordValidityTest = passwordSchema.safeParse(password);
-
-  if (typeof password !== "string" || !passwordValidityTest.success) {
-    return {
-      error: "invalid password",
-    };
-  }
-
-  const existingUser = (
-    await db
-      .select()
-      .from(userTable)
-      .where(eq(userTable.username, username))
-      .limit(1)
-  )[0];
-
-  if (!existingUser) {
-    const hashedPassword = argon2.hash(password); // hash the password to pretend that an account with that username exists (for security against brute-force attacks)
-    return {
-      error: "incorrect username or password",
-    };
-  }
-
-  const isPasswordValid = await argon2.verify(
-    existingUser.hashed_password,
-    password
-  );
-
-  if (!isPasswordValid) {
-    return {
-      error: "incorrect username or password",
-    };
-  }
-
-  const session = await lucia.createSession(existingUser.id, {});
-  const sessionCookie = lucia.createSessionCookie(session.id);
-  cookies().set(
-    sessionCookie.name,
-    sessionCookie.value,
-    sessionCookie.attributes
-  );
-  redirect("/dashboard");
 }
 
 export async function signout(): Promise<ActionResult> {

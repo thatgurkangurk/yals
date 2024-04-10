@@ -17,6 +17,7 @@ import clsx from "clsx";
 import React, { useState } from "react";
 import { Register } from "./auth/register";
 import { useRouter } from "next/navigation";
+import { Login } from "./auth/login";
 
 function NavbarLink({
   href,
@@ -40,7 +41,7 @@ function NavbarLink({
   );
 }
 
-const fetcher: Fetcher<User | null, string> = (url) =>
+export const fetcher: Fetcher<User | null, string> = (url) =>
   fetch(url).then((r) => r.json());
 
 export function Navbar() {
@@ -132,7 +133,7 @@ export function Navbar() {
           </DropdownMenu>
         ) : (
           <>
-            <Button variant={"link"}>login</Button>
+            <Login />
             <Register />
           </>
         )}

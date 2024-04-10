@@ -28,3 +28,8 @@ export const registerFormSchema = zfd
     path: ["passwordConfirm"],
     message: "passwords do not match",
   });
+
+export const loginFormSchema = zfd.formData({
+  username: zfd.text(usernameSchema),
+  password: zfd.text(passwordSchema),
+});

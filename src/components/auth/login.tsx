@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-
+import useSWRMutation from "swr/mutation";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { Button } from "@/components/ui/button";
@@ -30,8 +30,8 @@ import {
   UseFormRegister,
   useForm,
 } from "react-hook-form";
-import { ActionState, register } from "@/lib/auth/actions";
-import { registerFormSchema } from "@/lib/auth/validation";
+import { ActionState, login } from "@/lib/auth/actions";
+import { loginFormSchema } from "@/lib/auth/validation";
 import { atom, useAtom, useSetAtom } from "jotai";
 import { useFormState, useFormStatus } from "react-dom";
 import { useEffect } from "react";
@@ -39,20 +39,18 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ErrorMessage } from "@hookform/error-message";
 import { z } from "zod";
-import useSWRMutation from "swr/mutation";
 import { fetcher } from "../navbar";
 
 const openAtom = atom(false);
 
-export function Register() {
+export function Login() {
   const [open, setOpen] = useAtom(openAtom);
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const text = {
-    button: "register",
-    title: "Welcome to yals!",
-    description:
-      "We're so happy to see you here! Create an account to get started making short links!",
+    button: "login",
+    title: "Welcome back!",
+    description: "Log in to manage your short links!",
   };
 
   if (isDesktop) {
@@ -67,7 +65,7 @@ export function Register() {
               <DialogTitle>{text.title}</DialogTitle>
               <DialogDescription>{text.description}</DialogDescription>
             </DialogHeader>
-            <RegisterForm className="px-4" />
+            <LoginForm className="px-4" />
           </DialogContent>
         </Dialog>
       </>
@@ -85,7 +83,7 @@ export function Register() {
             <DrawerTitle>{text.title}</DrawerTitle>
             <DrawerDescription>{text.description}</DrawerDescription>
           </DrawerHeader>
-          <RegisterForm className="px-4" />
+          <LoginForm className="px-4" />
           <DrawerFooter className="pt-2">
             <DrawerClose asChild>
               <Button variant="outline">Cancel</Button>
@@ -97,9 +95,9 @@ export function Register() {
   );
 }
 
-type FormValues = z.infer<typeof registerFormSchema>;
+type FormValues = z.infer<typeof loginFormSchema>;
 
-function RegisterFormContent({
+function LoginFormContent({
   register,
   isValid,
   errors,
@@ -116,25 +114,20 @@ function RegisterFormContent({
         <Input {...register("username")} placeholder="thatgurkangurk" />{" "}
         <ErrorMessage name="username" errors={errors} />
       </div>
-      <div className="grid gap-2">
+      <div className="grid gap-2 pb-48 md:pb-0">
         <Label htmlFor="password">Password</Label>
         <Input {...register("password")} type="password" />{" "}
         <ErrorMessage name="password" errors={errors} />
       </div>
-      <div className="grid gap-2 pb-48 md:pb-0">
-        <Label htmlFor="passwordConfirm">Confirm Password</Label>
-        <Input {...register("passwordConfirm")} type="password" />{" "}
-        <ErrorMessage name="passwordConfirm" errors={errors} />
-      </div>
       <Button type="submit" disabled={pending || !isValid}>
-        Register
+        Login
       </Button>
       {pending && <span>loading...</span>}
     </>
   );
 }
 
-export function RegisterForm({ className }: React.ComponentProps<"form">) {
+export function LoginForm({ className }: React.ComponentProps<"form">) {
   const router = useRouter();
   const setOpen = useSetAtom(openAtom);
   const {
@@ -143,12 +136,9 @@ export function RegisterForm({ className }: React.ComponentProps<"form">) {
     setError,
   } = useForm<FormValues>({
     mode: "all",
-    resolver: zodResolver(registerFormSchema),
+    resolver: zodResolver(loginFormSchema),
   });
-  const [state, formAction] = useFormState<ActionState, FormData>(
-    register,
-    null
-  );
+  const [state, formAction] = useFormState<ActionState, FormData>(login, null);
   const { trigger: refetchUser } = useSWRMutation(
     "/api/auth/get-user",
     fetcher
@@ -177,7 +167,7 @@ export function RegisterForm({ className }: React.ComponentProps<"form">) {
       className={cn("grid items-start gap-4", className)}
       action={formAction}
     >
-      <RegisterFormContent
+      <LoginFormContent
         register={formRegister}
         isValid={isValid}
         errors={errors}
