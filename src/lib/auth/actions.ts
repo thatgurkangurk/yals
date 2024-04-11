@@ -7,7 +7,7 @@ import { getUser, lucia } from "./config";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import argon2 from "argon2";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { registerFormSchema, loginFormSchema } from "./validation";
 
 type ActionResult = { error: string };
@@ -51,6 +51,11 @@ export async function register(
         ],
       };
     }
+
+    const userCount = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(userTable);
+    const isEmpty = userCount[0].count === 0;
 
     await db.insert(userTable).values({
       id: userId,
