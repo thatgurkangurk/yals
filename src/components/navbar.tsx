@@ -16,18 +16,23 @@ import { Button } from "./ui/button";
 import clsx from "clsx";
 import React, { useState } from "react";
 import { Register } from "./auth/register";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Login } from "./auth/login";
+import { atom, useAtom, useSetAtom } from "jotai";
+
+const sheetOpenAtom = atom(false);
 
 function NavbarLink({
   href,
-  isActive,
   children,
 }: {
   href: string;
-  isActive: boolean;
   children: React.ReactNode;
 }) {
+  const currentPath = usePathname();
+  const setIsOpen = useSetAtom(sheetOpenAtom);
+  const isActive = currentPath === href;
+
   return (
     <Link
       href={href}
@@ -35,6 +40,7 @@ function NavbarLink({
         "transition-colors hover:text-foreground",
         isActive ? "text-foreground" : "text-muted-foreground"
       )}
+      onClick={() => setIsOpen(false)}
     >
       {children}
     </Link>
@@ -45,6 +51,7 @@ export const fetcher: Fetcher<User | null, string> = (url) =>
   fetch(url).then((r) => r.json());
 
 export function Navbar() {
+  const [isOpen, setIsOpen] = useAtom(sheetOpenAtom);
   const { data: user, mutate: refetchUser } = useSWR(
     "/api/auth/get-user",
     fetcher
@@ -64,11 +71,10 @@ export function Navbar() {
         >
           <span>yals</span>
         </Link>
-        <NavbarLink href="/dashboard" isActive>
-          Dashboard
-        </NavbarLink>
+        <NavbarLink href="/">Home</NavbarLink>
+        <NavbarLink href="/dashboard">Dashboard</NavbarLink>
       </nav>
-      <Sheet>
+      <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetTrigger asChild>
           <Button variant="outline" size="icon" className="shrink-0 md:hidden">
             <Menu className="h-5 w-5" />
@@ -83,9 +89,8 @@ export function Navbar() {
             >
               <span>yals</span>
             </Link>
-            <NavbarLink href="/dashboard" isActive>
-              Dashboard
-            </NavbarLink>
+            <NavbarLink href="/">Home</NavbarLink>
+            <NavbarLink href="/dashboard">Dashboard</NavbarLink>
           </nav>
         </SheetContent>
       </Sheet>
