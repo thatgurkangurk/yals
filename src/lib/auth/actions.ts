@@ -1,15 +1,11 @@
 "use server";
 import { ZodError } from "zod";
-import { generateId } from "lucia";
-import { db } from "../db";
-import { userTable } from "../schema";
-import { getUser, lucia } from "./config";
+import { getUser as getSession, lucia } from "./config";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import argon2 from "argon2";
-import { eq, sql } from "drizzle-orm";
 import { registerFormSchema, loginFormSchema } from "./validation";
-import { userExists, isUsersEmpty } from "./user";
+import { userExists, getUser, createUser, createSession } from "./user";
+import { hashPassword, verifyPassword } from "./password";
 
 type ActionResult = { error: string };
 export type ActionState =
@@ -33,9 +29,6 @@ export async function register(
   try {
     const { username, password } = registerFormSchema.parse(data);
 
-    const hashedPassword = await argon2.hash(password);
-    const userId = generateId(15);
-
     if (await userExists(username)) {
       return {
         status: "error",
@@ -49,16 +42,9 @@ export async function register(
       };
     }
 
-    const isEmpty = await isUsersEmpty();
+    const user = await createUser(username, password);
+    const sessionCookie = await createSession(user.id);
 
-    await db.insert(userTable).values({
-      id: userId,
-      username: username,
-      hashed_password: hashedPassword,
-    });
-
-    const session = await lucia.createSession(userId, {});
-    const sessionCookie = lucia.createSessionCookie(session.id);
     cookies().set(
       sessionCookie.name,
       sessionCookie.value,
@@ -94,8 +80,8 @@ export async function login(
   try {
     const { username, password } = loginFormSchema.parse(data);
 
-    if (!await userExists(username)) {
-      const hashedPassword = argon2.hash(password); // hash the password to pretend that an account with that username exists (for security against brute-force attacks)
+    if (!(await userExists(username))) {
+      const hashedPassword = hashPassword(password); // hash the password to pretend that an account with that username exists (for security against brute-force attacks)
       return {
         status: "error",
         message: "incorrect username or password",
@@ -112,7 +98,9 @@ export async function login(
       };
     }
 
-    const isPasswordValid = await argon2.verify(
+    const existingUser = await getUser(username);
+
+    const isPasswordValid = await verifyPassword(
       existingUser.hashed_password,
       password
     );
@@ -134,8 +122,7 @@ export async function login(
       };
     }
 
-    const session = await lucia.createSession(existingUser.id, {});
-    const sessionCookie = lucia.createSessionCookie(session.id);
+    const sessionCookie = await createSession(existingUser.id);
     cookies().set(
       sessionCookie.name,
       sessionCookie.value,
@@ -165,7 +152,7 @@ export async function login(
 }
 
 export async function signout(): Promise<ActionResult> {
-  const { session } = await getUser();
+  const { session } = await getSession();
   if (!session) {
     return {
       error: "Unauthorized",
