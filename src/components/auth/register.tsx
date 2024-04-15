@@ -39,8 +39,6 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ErrorMessage } from "@hookform/error-message";
 import { z } from "zod";
-import useSWRMutation from "swr/mutation";
-import { fetcher } from "../navbar";
 
 const openAtom = atom(false);
 
@@ -149,10 +147,6 @@ export function RegisterForm({ className }: React.ComponentProps<"form">) {
     register,
     null
   );
-  const { trigger: refetchUser } = useSWRMutation(
-    "/api/auth/get-user",
-    fetcher
-  );
 
   useEffect(() => {
     if (!state) return;
@@ -167,10 +161,9 @@ export function RegisterForm({ className }: React.ComponentProps<"form">) {
 
     if (state.status === "ok") {
       setOpen(false);
-      refetchUser();
       router.push("/dashboard");
     }
-  }, [refetchUser, router, setError, setOpen, state]);
+  }, [router, setError, setOpen, state]);
 
   return (
     <form

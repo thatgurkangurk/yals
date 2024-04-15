@@ -1,8 +1,6 @@
 "use client";
-import { User } from "lucia";
 import Link from "next/link";
 import { CircleUser, Menu } from "lucide-react";
-import useSWR, { Fetcher } from "swr";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,6 +17,7 @@ import { Register } from "./auth/register";
 import { usePathname, useRouter } from "next/navigation";
 import { Login } from "./auth/login";
 import { atom, useAtom, useSetAtom } from "jotai";
+import { useSession } from "./session-provider";
 
 const sheetOpenAtom = atom(false);
 
@@ -47,15 +46,9 @@ function NavbarLink({
   );
 }
 
-export const fetcher: Fetcher<User | null, string> = (url) =>
-  fetch(url).then((r) => r.json());
-
 export function Navbar() {
   const [isOpen, setIsOpen] = useAtom(sheetOpenAtom);
-  const { data: user, mutate: refetchUser } = useSWR(
-    "/api/auth/get-user",
-    fetcher
-  );
+  const { user } = useSession();
   const greetings = ["Hello", "Howdy", "Welcome", "Hiya", "Hey", "Hey there"];
 
   const [greeting, setGreeting] = useState("Howdy");
@@ -127,7 +120,6 @@ export function Navbar() {
               <DropdownMenuItem
                 onClick={() =>
                   fetch("/api/auth/signout").then(() => {
-                    refetchUser();
                     router.refresh();
                   })
                 }

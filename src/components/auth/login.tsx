@@ -1,6 +1,5 @@
 "use client";
 import * as React from "react";
-import useSWRMutation from "swr/mutation";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { Button } from "@/components/ui/button";
@@ -39,7 +38,6 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ErrorMessage } from "@hookform/error-message";
 import { z } from "zod";
-import { fetcher } from "../navbar";
 
 const openAtom = atom(false);
 
@@ -139,10 +137,6 @@ export function LoginForm({ className }: React.ComponentProps<"form">) {
     resolver: zodResolver(loginFormSchema),
   });
   const [state, formAction] = useFormState<ActionState, FormData>(login, null);
-  const { trigger: refetchUser } = useSWRMutation(
-    "/api/auth/get-user",
-    fetcher
-  );
 
   useEffect(() => {
     if (!state) return;
@@ -157,10 +151,9 @@ export function LoginForm({ className }: React.ComponentProps<"form">) {
 
     if (state.status === "ok") {
       setOpen(false);
-      refetchUser();
       router.push("/dashboard");
     }
-  }, [refetchUser, router, setError, setOpen, state]);
+  }, [router, setError, setOpen, state]);
 
   return (
     <form

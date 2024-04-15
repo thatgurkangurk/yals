@@ -1,4 +1,3 @@
-import { RegisterForm } from "@/components/auth/register";
 import Link from "next/link";
 
 export default function Home() {
