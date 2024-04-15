@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 
 const userRole = text("role", { enum: ["admin", "user"] }).default("user");
@@ -9,6 +10,10 @@ const userTable = sqliteTable("user", {
   role: userRole,
 });
 
+const usersRelations = relations(userTable, ({ many }) => ({
+  links: many(linkTable),
+}));
+
 const sessionTable = sqliteTable("session", {
   id: text("id").notNull().primaryKey(),
   userId: text("user_id")
@@ -17,4 +22,18 @@ const sessionTable = sqliteTable("session", {
   expiresAt: integer("expires_at").notNull(),
 });
 
-export { userTable, sessionTable };
+const linkTable = sqliteTable("link", {
+  id: text("id").notNull().primaryKey(),
+  userId: text("user_id").notNull(),
+  slug: text("slug").notNull().unique(),
+  target: text("target").notNull(),
+});
+
+const linksRelations = relations(linkTable, ({ one }) => ({
+  owner: one(userTable, {
+    fields: [linkTable.userId],
+    references: [userTable.id],
+  }),
+}));
+
+export { userTable, sessionTable, usersRelations, linkTable, linksRelations };
