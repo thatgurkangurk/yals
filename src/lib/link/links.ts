@@ -22,6 +22,16 @@ export async function getLinkById(id: string) {
   return link[0];
 }
 
+export async function getLinkBySlug(slug: string) {
+  const link = await db
+    .select()
+    .from(linkTable)
+    .where(eq(linkTable.slug, slug))
+    .limit(1);
+
+  return link[0];
+}
+
 export async function createLink(
   slug: string,
   target: string,
