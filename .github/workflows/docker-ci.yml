@@ -22,8 +22,14 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      - name: Build the Docker image
+      - name: Build the Docker image (latest)
+        run: docker build . --tag ${{ secrets.DOCKERHUB_USERNAME }}/yals:latest
+
+      - name: Build the Docker image (tagged)
         run: docker build . --tag ${{ secrets.DOCKERHUB_USERNAME }}/yals:${{ inputs.tag }}
 
-      - name: Docker Push
+      - name: Docker Push (latest)
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/yals:latest
+
+      - name: Docker Push (tagged)
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/yals:${{ inputs.tag }}
