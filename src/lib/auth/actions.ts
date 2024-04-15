@@ -9,6 +9,7 @@ import { redirect } from "next/navigation";
 import argon2 from "argon2";
 import { eq, sql } from "drizzle-orm";
 import { registerFormSchema, loginFormSchema } from "./validation";
+import { userExists, isUsersEmpty } from "./user";
 
 type ActionResult = { error: string };
 export type ActionState =
@@ -35,11 +36,7 @@ export async function register(
     const hashedPassword = await argon2.hash(password);
     const userId = generateId(15);
 
-    const existingUser = await db.query.userTable.findFirst({
-      where: (user, { eq }) => eq(user.username, username),
-    });
-
-    if (existingUser) {
+    if (await userExists(username)) {
       return {
         status: "error",
         message: "user with that username already exists",
@@ -52,10 +49,7 @@ export async function register(
       };
     }
 
-    const userCount = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(userTable);
-    const isEmpty = userCount[0].count === 0;
+    const isEmpty = await isUsersEmpty();
 
     await db.insert(userTable).values({
       id: userId,
@@ -100,15 +94,7 @@ export async function login(
   try {
     const { username, password } = loginFormSchema.parse(data);
 
-    const existingUser = (
-      await db
-        .select()
-        .from(userTable)
-        .where(eq(userTable.username, username))
-        .limit(1)
-    )[0];
-
-    if (!existingUser) {
+    if (!await userExists(username)) {
       const hashedPassword = argon2.hash(password); // hash the password to pretend that an account with that username exists (for security against brute-force attacks)
       return {
         status: "error",
