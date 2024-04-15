@@ -44,10 +44,8 @@ export async function deleteLinkAction(data: FormData): Promise<ActionState> {
     const result = await deleteLink(id);
 
     if (result.status === "ok") {
-      revalidatePath(`/dashboard/links/${id}`);
-      return {
-        status: "ok",
-      };
+      revalidatePath("/dashboard");
+      redirect("/dashboard");
     }
 
     return {
@@ -78,8 +76,6 @@ export async function createLinkAction(
     }
 
     const link = await createLink(slug, target, user.id);
-
-    redirect(`/dashboard/links/${link.id}`);
   } catch (e: any) {
     if (e instanceof ZodError) {
       return {
@@ -112,4 +108,7 @@ export async function createLinkAction(
       message: "something went wrong. please try again",
     };
   }
+
+  revalidatePath("/dashboard");
+  redirect("/dashboard");
 }
