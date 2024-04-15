@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, int } from "drizzle-orm/sqlite-core";
 
 const userRole = text("role", { enum: ["admin", "user"] }).default("user");
 
@@ -36,4 +36,18 @@ const linksRelations = relations(linkTable, ({ one }) => ({
   }),
 }));
 
-export { userTable, sessionTable, usersRelations, linkTable, linksRelations };
+const serverSettingTable = sqliteTable("server_setting", {
+  id: int("id").notNull().primaryKey({ autoIncrement: true }),
+  key: text("key").notNull().unique(),
+  value: text("value"),
+  type: text("type"),
+});
+
+export {
+  userTable,
+  sessionTable,
+  usersRelations,
+  linkTable,
+  linksRelations,
+  serverSettingTable,
+};

@@ -1,7 +1,5 @@
 import { getUser } from "@/lib/auth/config";
-import { db } from "@/lib/db";
 import { getAllLinks } from "@/lib/link/links";
-import { redirect } from "next/navigation";
 import {
   Card,
   CardDescription,
@@ -47,9 +45,19 @@ export default async function Dashboard() {
         welcome to yals, {user!.username}
       </h1>
 
-      <Button className="w-fit">
-        <Link href={"/dashboard/links/create"}>create link</Link>
-      </Button>
+      <div className="flex gap-2">
+        <Button className="w-fit">
+          <Link href={"/dashboard/links/create"}>create link</Link>
+        </Button>
+
+        {user!.role === "admin" ? (
+          <Button className="w-fit" variant={"secondary"}>
+            <Link href={"/dashboard/server/settings"}>server settings</Link>
+          </Button>
+        ) : (
+          <></>
+        )}
+      </div>
 
       <div className="pt-4 grid md:grid-cols-2 gap-2">
         {links.map((link) => (

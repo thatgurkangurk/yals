@@ -1,14 +1,9 @@
-import { generateId } from "lucia";
+import { User, generateId } from "lucia";
 import { db } from "../db";
 import { userTable } from "../schema";
 import { eq, sql } from "drizzle-orm";
 import { hashPassword } from "./password";
 import { lucia } from "./config";
-
-type User = {
-  id: string;
-  username: string;
-};
 
 export async function userExists(username: string) {
   const user = await db.query.userTable.findFirst({
@@ -62,6 +57,7 @@ export async function createUser(
     return {
       id: userId,
       username: username,
+      role: "admin",
     };
   }
 
@@ -75,6 +71,7 @@ export async function createUser(
   return {
     id: userId,
     username: username,
+    role: "user",
   };
 }
 
