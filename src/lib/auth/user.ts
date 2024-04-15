@@ -12,11 +12,15 @@ export async function userExists(username: string) {
 }
 
 export async function getTotalUserCount() {
-    const count = await db.select({ count: sql<number>`count(*)` }).from(userTable);
-    return count[0].count;
+  const count = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(userTable);
+  return count[0].count;
 }
 
 export async function isUsersEmpty() {
-    const count = await getTotalUserCount();
-    const isEmpty = count === 0;
+  const count = await getTotalUserCount();
+  const isEmpty = count === 0;
+
+  return isEmpty;
 }
