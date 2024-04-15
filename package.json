@@ -9,7 +9,7 @@
     "lint": "next lint",
     "db:push": "drizzle-kit push:sqlite",
     "generate": "drizzle-kit generate:sqlite",
-    "start:docker": "pnpm drizzle-kit push:sqlite && DB_URL=/data/yals.db HOSTNAME=0.0.0.0 node ./.next/standalone/server.js"
+    "start:docker": "DB_URL=/data/yals.db pnpm drizzle-kit push:sqlite && DB_URL=/data/yals.db HOSTNAME=0.0.0.0 node ./.next/standalone/server.js"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^0.9.0",

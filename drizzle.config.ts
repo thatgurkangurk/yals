@@ -5,7 +5,7 @@ export default defineConfig({
   out: "./drizzle",
   driver: "better-sqlite",
   dbCredentials: {
-    url: env.DB_URL,
+    url: env.DB_URL || "./data/yals.db",
   },
   verbose: true,
 });

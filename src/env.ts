@@ -7,7 +7,7 @@ export const env = createEnv({
       .enum(["production", "development", "test"])
       .optional()
       .default("development"),
-    DB_URL: z.string().optional().default("/data/yals.db"),
+    DB_URL: z.string().optional(),
   },
   // If you're using Next.js < 13.4.4, you'll need to specify the runtimeEnv manually
   runtimeEnv: {
