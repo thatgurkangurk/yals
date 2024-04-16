@@ -46,7 +46,11 @@ function NavbarLink({
   );
 }
 
-export function Navbar() {
+export function Navbar({
+  registrationEnabled,
+}: {
+  registrationEnabled: boolean;
+}) {
   const [isOpen, setIsOpen] = useAtom(sheetOpenAtom);
   const { user } = useSession();
   const greetings = ["Hello", "Howdy", "Welcome", "Hiya", "Hey", "Hey there"];
@@ -131,7 +135,7 @@ export function Navbar() {
         ) : (
           <>
             <Login />
-            <Register />
+            <Register registrationEnabled={registrationEnabled} />
           </>
         )}
       </div>

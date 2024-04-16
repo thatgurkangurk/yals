@@ -6,6 +6,8 @@ import { redirect } from "next/navigation";
 import { registerFormSchema, loginFormSchema } from "./validation";
 import { userExists, getUser, createUser, createSession } from "./user";
 import { hashPassword, verifyPassword } from "./password";
+import { getServerSettingsOrInit } from "../settings";
+import { revalidatePath } from "next/cache";
 
 type ActionResult = { error: string };
 export type ActionState =
@@ -28,6 +30,24 @@ export async function register(
 ): Promise<ActionState> {
   try {
     const { username, password } = registerFormSchema.parse(data);
+    const serverSettings = await getServerSettingsOrInit();
+
+    const { registrationEnabled } = serverSettings;
+
+    if (!registrationEnabled) {
+      revalidatePath("/", "layout");
+      return {
+        status: "error",
+        message: "registration is disabled on this server",
+        errors: [
+          {
+            path: "root",
+            message:
+              "Registration has been disabled on this server. Contact the server administrator if this is unexpected.",
+          },
+        ],
+      };
+    }
 
     if (await userExists(username)) {
       return {

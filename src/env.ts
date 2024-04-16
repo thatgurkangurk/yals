@@ -7,12 +7,12 @@ export const env = createEnv({
       .enum(["production", "development", "test"])
       .optional()
       .default("development"),
-    DB_URL: z.string().optional(),
+    DATA_DIR: z.string().optional(),
   },
   // If you're using Next.js < 13.4.4, you'll need to specify the runtimeEnv manually
   runtimeEnv: {
     NODE_ENV: process.env.NODE_ENV,
-    DB_URL: process.env.DB_URL,
+    DATA_DIR: process.env.DATA_DIR,
   },
   // For Next.js >= 13.4.4, you only need to destructure client variables:
   // experimental__runtimeEnv: {

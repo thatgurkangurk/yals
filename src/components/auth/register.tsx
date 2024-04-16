@@ -27,6 +27,7 @@ import { Label } from "@/components/ui/label";
 import {
   FieldErrors,
   FieldPath,
+  GlobalError,
   UseFormRegister,
   useForm,
 } from "react-hook-form";
@@ -39,10 +40,16 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ErrorMessage } from "@hookform/error-message";
 import { z } from "zod";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import { AlertCircle } from "lucide-react";
 
 const openAtom = atom(false);
 
-export function Register() {
+export function Register({
+  registrationEnabled,
+}: {
+  registrationEnabled: boolean;
+}) {
   const [open, setOpen] = useAtom(openAtom);
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
@@ -65,7 +72,18 @@ export function Register() {
               <DialogTitle>{text.title}</DialogTitle>
               <DialogDescription>{text.description}</DialogDescription>
             </DialogHeader>
-            <RegisterForm className="px-4" />
+            {registrationEnabled ? (
+              <RegisterForm className="px-4" />
+            ) : (
+              <Alert variant="default">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>
+                  Registration has been disabled on this server. Contact the
+                  server administrator if this is unexpected.
+                </AlertDescription>
+              </Alert>
+            )}
           </DialogContent>
         </Dialog>
       </>
@@ -83,7 +101,18 @@ export function Register() {
             <DrawerTitle>{text.title}</DrawerTitle>
             <DrawerDescription>{text.description}</DrawerDescription>
           </DrawerHeader>
-          <RegisterForm className="px-4" />
+          {registrationEnabled ? (
+            <RegisterForm className="px-4" />
+          ) : (
+            <Alert variant="default">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>
+                Registration has been disabled on this server. Contact the
+                server administrator if this is unexpected.
+              </AlertDescription>
+            </Alert>
+          )}
           <DrawerFooter className="pt-2">
             <DrawerClose asChild>
               <Button variant="outline">Cancel</Button>
@@ -104,11 +133,14 @@ function RegisterFormContent({
 }: {
   register: UseFormRegister<FormValues>;
   isValid: boolean;
-  errors: FieldErrors<FormValues>;
+  errors: FieldErrors<
+    FormValues & { root?: Record<string, GlobalError> & GlobalError }
+  >;
 }) {
   const { pending } = useFormStatus();
   return (
     <>
+      <ErrorMessage name="root" errors={errors} />
       <div className="grid gap-2">
         <Label htmlFor="username">Username</Label>
         <Input {...register("username")} placeholder="thatgurkangurk" />{" "}

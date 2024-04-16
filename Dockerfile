@@ -23,7 +23,7 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-ENV DB_URL /data/yals
+ENV DATA_DIR /data
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
@@ -31,6 +31,7 @@ ENV DB_URL /data/yals
 ENV NEXT_TELEMETRY_DISABLED 1
 RUN mkdir -p /data
 RUN corepack enable pnpm
+RUN pnpm db:push
 RUN pnpm run build
 
 
