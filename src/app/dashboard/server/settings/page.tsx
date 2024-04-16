@@ -47,11 +47,11 @@ async function RegistrationEnabledSetting() {
       <CardFooter>
         <form action={toggleRegistration}>
           {registrationEnabled ? (
-            <Button type="submit">Enable Registration</Button>
-          ) : (
             <Button type="submit" variant={"destructive"}>
               Disable Registration
             </Button>
+          ) : (
+            <Button type="submit">Enable Registration</Button>
           )}
         </form>
       </CardFooter>
