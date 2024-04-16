@@ -1,0 +1,13 @@
+{
+  "version": "5",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1713264082674,
+      "tag": "0000_low_black_tarantula",
+      "breakpoints": true
+    }
+  ]
+}
