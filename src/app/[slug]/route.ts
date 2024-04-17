@@ -1,18 +1,21 @@
+export const revalidate = 1;
+export const dynamic = "force-dynamic";
+
 import { getLinkBySlug, logLinkClick } from "@/lib/link/links";
-import { permanentRedirect } from "next/navigation";
-import { NextRequest, NextResponse } from "next/server";
+import { notFound, redirect } from "next/navigation";
+import { NextRequest } from "next/server";
 
 export async function GET(
   _: NextRequest,
   { params }: { params: { slug: string } }
 ) {
+  console.log("request");
   const { slug } = params;
 
   const shortLink = await getLinkBySlug(slug);
 
-  if (!shortLink) NextResponse.next();
+  if (typeof shortLink === "undefined") return notFound();
 
-  logLinkClick(shortLink.slug);
-
-  return permanentRedirect(shortLink.target);
+  await logLinkClick(shortLink.slug);
+  return redirect(shortLink.target);
 }

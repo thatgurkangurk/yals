@@ -57,6 +57,7 @@ export async function deleteLink(
   id: string
 ): Promise<{ status: "ok" | "error" }> {
   try {
+    await db.delete(linkClickTable).where(eq(linkClickTable.linkId, id));
     await db.delete(linkTable).where(eq(linkTable.id, id));
 
     return {
@@ -72,21 +73,25 @@ export async function deleteLink(
 export async function logLinkClick(slug: string) {
   const link = await getLinkBySlug(slug);
 
-  const linkClick = await db.insert(linkClickTable).values({
-    linkId: link.id
-  }).returning();
+  const linkClick = await db
+    .insert(linkClickTable)
+    .values({
+      id: nanoid(),
+      linkId: link.id,
+    })
+    .returning();
 
   revalidatePath(`/dashboard/${link.id}`);
 }
 
-export async function getLinkClickCount(linkId: string) {
+export async function getLinkClicks(linkId: string) {
   const link = await getLinkById(linkId);
 
-  if (!link) return 0;
+  if (!link) return null;
 
-  const clicksCount = await db.query.linkClickTable.findMany({
-    where: (click, { eq }) => eq(click.linkId, link.id)
+  const clicks = await db.query.linkClickTable.findMany({
+    where: (click, { eq }) => eq(click.linkId, link.id),
   });
 
-  return clicksCount.length;
+  return clicks;
 }

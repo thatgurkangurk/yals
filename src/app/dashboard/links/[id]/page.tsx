@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { deleteLinkAction } from "@/lib/link/actions";
-import { getLinkById, getLinkClickCount } from "@/lib/link/links";
+import { getLinkById, getLinkClicks } from "@/lib/link/links";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -10,9 +10,10 @@ export default async function LinkDetails({
   params: { id: string };
 }) {
   const link = await getLinkById(params.id);
-  const linkClicks = await getLinkClickCount(link.id);
 
   if (!link) redirect("/dashboard");
+
+  const linkClicks = await getLinkClicks(link.id);
 
   return (
     <>
@@ -20,7 +21,7 @@ export default async function LinkDetails({
         <Link href={"/dashboard"}>back to dashboard</Link>
       </Button>
       <h2 className="text-4xl">link: {link.slug}</h2>
-      <p>this page is under construction, clicks: {linkClicks}</p>
+      <p>this page is under construction, clicks: {linkClicks?.length}</p>
 
       <form action={deleteLinkAction}>
         <input type="hidden" name="id" value={link.id} />

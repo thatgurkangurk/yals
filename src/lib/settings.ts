@@ -5,9 +5,12 @@ export async function getServerSettingsOrInit() {
   const serverSettings = await db.query.serverSettingsTable.findFirst();
 
   if (!serverSettings) {
-    const newSettings = await db.insert(serverSettingsTable).values({}).returning();
+    const newSettings = await db
+      .insert(serverSettingsTable)
+      .values({})
+      .returning();
 
-    return newSettings!;
+    return newSettings[0]!;
   }
 
   return serverSettings;
