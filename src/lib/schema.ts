@@ -1,4 +1,4 @@
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 
 const userRole = text("role", { enum: ["admin", "user"] }).default("user");
@@ -29,10 +29,26 @@ const linkTable = sqliteTable("link", {
   target: text("target").notNull(),
 });
 
-const linksRelations = relations(linkTable, ({ one }) => ({
+const linkClickTable = sqliteTable("link_click", {
+  id: text("id").notNull().primaryKey(),
+  linkId: text("link_id").notNull(),
+  timestamp: integer("timestamp", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});
+
+const linksRelations = relations(linkTable, ({ one, many }) => ({
   owner: one(userTable, {
     fields: [linkTable.userId],
     references: [userTable.id],
+  }),
+  clicks: many(linkClickTable),
+}));
+
+const linkClickRelations = relations(linkClickTable, ({ one }) => ({
+  link: one(linkTable, {
+    fields: [linkClickTable.linkId],
+    references: [linkTable.id],
   }),
 }));
 
@@ -44,8 +60,10 @@ const serverSettingsTable = sqliteTable("server_settings", {
     .default(true)
     .notNull(),
   footerEnabled: integer("footer_enabled", {
-    mode: "boolean"
-  }).default(true).notNull(),
+    mode: "boolean",
+  })
+    .default(true)
+    .notNull(),
 });
 
 export {
@@ -55,4 +73,6 @@ export {
   linkTable,
   linksRelations,
   serverSettingsTable,
+  linkClickTable,
+  linkClickRelations,
 };
