@@ -1,5 +1,6 @@
 import { relations } from "drizzle-orm";
 import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { nanoid } from "nanoid";
 
 const userRole = text("role", { enum: ["admin", "user"] }).default("user");
 
@@ -29,12 +30,27 @@ const linkTable = sqliteTable("link", {
   target: text("target").notNull(),
 });
 
-const linksRelations = relations(linkTable, ({ one }) => ({
+const linkClickTable = sqliteTable("link_click", {
+  id: text("id").notNull().default(nanoid()).primaryKey(),
+  linkId: text("link_id").notNull(),
+  timestamp: integer("timestamp", { mode: "timestamp" })
+})
+
+const linksRelations = relations(linkTable, ({ one, many }) => ({
   owner: one(userTable, {
     fields: [linkTable.userId],
     references: [userTable.id],
   }),
+  clicks: many(linkClickTable),
 }));
+
+const linkClickRelations = relations(linkClickTable, ({ one }) => ({
+  link: one(linkTable, {
+    fields: [linkClickTable.linkId],
+    references: [linkTable.id]
+  }),
+}));
+
 
 const serverSettingsTable = sqliteTable("server_settings", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -55,4 +71,6 @@ export {
   linkTable,
   linksRelations,
   serverSettingsTable,
+  linkClickTable,
+  linkClickRelations
 };
