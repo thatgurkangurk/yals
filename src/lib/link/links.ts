@@ -3,6 +3,7 @@ import { nanoid } from "nanoid";
 import { db } from "../db";
 import { linkClickTable, linkTable } from "../schema";
 import { revalidatePath } from "next/cache";
+import { extractSlug } from "../utils";
 
 export async function getAllLinks(ownedBy: string) {
   const links = await db
@@ -27,7 +28,7 @@ export async function getLinkBySlug(slug: string) {
   const link = await db
     .select()
     .from(linkTable)
-    .where(eq(linkTable.slug, slug))
+    .where(eq(linkTable.slug, extractSlug(slug)))
     .limit(1);
 
   return link[0];
