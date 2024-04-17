@@ -7,6 +7,7 @@ import { getUser } from "@/lib/auth/config";
 import { JotaiProvider } from "@/components/jotai-provider";
 import { SessionProvider } from "@/components/session-provider";
 import { getServerSettingsOrInit } from "@/lib/settings";
+import { Footer } from "@/components/footer";
 
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"] });
 
@@ -42,6 +43,7 @@ export default async function RootLayout({
                 <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-col bg-muted/40 p-4 md:p-10">
                   {children}
                 </main>
+                <Footer />
               </div>
             </SessionProvider>
           </JotaiProvider>

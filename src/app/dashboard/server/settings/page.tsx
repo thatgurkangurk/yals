@@ -14,6 +14,50 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
+async function FooterEnabledSetting() {
+  const serverSettings = await getServerSettingsOrInit();
+
+  const { footerEnabled } = serverSettings;
+
+  async function toggleFooter() {
+    "use server";
+    const { user } = await getUser();
+    if (!user || user.role !== "admin") redirect("/dashboard");
+
+    await db
+      .update(serverSettingsTable)
+      .set({
+        footerEnabled: !footerEnabled,
+      })
+      .where(eq(serverSettingsTable.id, 1));
+
+    revalidatePath("/", "layout");
+    redirect("/dashboard/server/settings");
+  }
+
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle>Footer</CardTitle>
+        <CardDescription className="max-w-lg text-balance leading-relaxed">
+          If this is enabled, there will be a footer showing that you use yals. Please keep this enabled to spread the word about yals.
+        </CardDescription>
+      </CardHeader>
+      <CardFooter>
+        <form action={toggleFooter}>
+          {footerEnabled ? (
+            <Button type="submit" variant={"destructive"}>
+              Disable Footer
+            </Button>
+          ) : (
+            <Button type="submit">Enable Footer</Button>
+          )}
+        </form>
+      </CardFooter>
+    </Card>
+  );
+}
+
 async function RegistrationEnabledSetting() {
   const serverSettings = await getServerSettingsOrInit();
 
@@ -70,6 +114,7 @@ export default async function ServerSettings() {
 
       <div className="pt-4 grid md:grid-cols-4 gap-2">
         <RegistrationEnabledSetting />
+        <FooterEnabledSetting />
       </div>
     </>
   );

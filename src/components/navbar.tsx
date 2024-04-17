@@ -69,6 +69,7 @@ export function Navbar({
           <span>yals</span>
         </Link>
         <NavbarLink href="/">Home</NavbarLink>
+        <NavbarLink href="/search">Link Searcher</NavbarLink>
         <NavbarLink href="/dashboard">Dashboard</NavbarLink>
       </nav>
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -87,6 +88,7 @@ export function Navbar({
               <span>yals</span>
             </Link>
             <NavbarLink href="/">Home</NavbarLink>
+            <NavbarLink href="/search">Link Searcher</NavbarLink>
             <NavbarLink href="/dashboard">Dashboard</NavbarLink>
           </nav>
         </SheetContent>
