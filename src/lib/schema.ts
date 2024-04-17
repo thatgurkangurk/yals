@@ -43,6 +43,9 @@ const serverSettingsTable = sqliteTable("server_settings", {
   })
     .default(true)
     .notNull(),
+  footerEnabled: integer("footer_enabled", {
+    mode: "boolean"
+  }).default(true).notNull(),
 });
 
 export {
