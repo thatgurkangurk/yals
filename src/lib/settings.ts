@@ -7,7 +7,7 @@ export async function getServerSettingsOrInit() {
   if (!serverSettings) {
     const newSettings = await db.insert(serverSettingsTable).values({}).returning();
 
-    return newServerSettings!;
+    return newSettings!;
   }
 
   return serverSettings;
