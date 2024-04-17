@@ -43,8 +43,8 @@ export default async function RootLayout({
                 <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-col bg-muted/40 p-4 md:p-10">
                   {children}
                 </main>
+                <Footer />
               </div>
-              <Footer />
             </SessionProvider>
           </JotaiProvider>
         </ThemeProvider>
