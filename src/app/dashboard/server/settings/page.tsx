@@ -44,7 +44,7 @@ async function FooterEnabledSetting() {
         </CardDescription>
       </CardHeader>
       <CardFooter>
-        <form action={toggleFooted}>
+        <form action={toggleFooter}>
           {footerEnabled ? (
             <Button type="submit" variant={"destructive"}>
               Disable Footer
