@@ -1,7 +1,8 @@
 import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { db } from "../db";
-import { linkTable } from "../schema";
+import { linkClickTable, linkTable } from "../schema";
+import { revalidatePath } from "next/cache";
 
 export async function getAllLinks(ownedBy: string) {
   const links = await db
@@ -66,4 +67,26 @@ export async function deleteLink(
       status: "error",
     };
   }
+}
+
+export async function logLinkClick(slug: string) {
+  const link = await getLinkBySlug(slug);
+
+  const linkClick = await db.insert(linkClickTable).values({
+    linkId: link.id
+  }).returning();
+
+  revalidatePath(`/dashboard/${link.id}`);
+}
+
+export async function getLinkClickCount(linkId: string) {
+  const link = await getLinkById(linkId);
+
+  if (!link) return 0;
+
+  const clicksCount = await db.query.linkClickTable.findMany({
+    where: (click, { eq }) => eq(click.linkId, link.id)
+  });
+
+  return clicksCount.length;
 }
