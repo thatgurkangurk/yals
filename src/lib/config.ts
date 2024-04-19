@@ -1,64 +1,88 @@
 import { env } from "@/env";
-import { exists, mkdir } from "node:fs/promises";
-import { error, info } from "./log";
+import { parse, stringify } from "smol-toml";
 import { z } from "zod";
-import { type BunFile } from "bun";
-import toml from "smol-toml";
-
-export async function setupDataDir() {
-    if (!(await exists(env.DATA_DIR))) {
-        // setup the config directory and files
-        info("data directory does not exist.");
-        try {
-            await mkdir(env.DATA_DIR);
-        } catch (e) {
-            error(e as string);
-            process.exit(1);
-        }
-    }
-}
-
-const defaultConfig = `
-[global]
-registrationEnabled = true
-port = 3000
-`;
+import { error, info } from "./log";
 
 const configSchema = z.object({
-    global: z.object({
-        registrationEnabled: z.boolean(),
-        port: z.number()
-    })
+  port: z.number().default(3000),
+  registrationEnabled: z.boolean().default(true),
+  footerEnabled: z.boolean().default(true),
 });
 
-export type ConfigFile = z.infer<typeof configSchema>;
+const defaultConfig = configSchema.parse({});
 
-async function readConfigFile(file: BunFile) {
-    const content = await file.text();
-    if (!content) {
-        await Bun.write(file, defaultConfig);
-    }
+type ConfigData = z.infer<typeof configSchema>;
+type ConfigKey = keyof ConfigData;
 
-    return content;
-}
+const configFile = Bun.file(`${env.DATA_DIR}/yals.toml`);
 
-export async function parseConfigFile(file: BunFile) {
-   const content = await readConfigFile(file);
-   const configData = await toml.parse(content);
+async function readConfig(): Promise<ConfigData> {
+  const content = await configFile.text();
+  const parsedContent = parse(content);
+  const config = await configSchema.safeParseAsync(parsedContent);
 
-   const parse = await configSchema.safeParseAsync(configData);
-
-   if (!parse.success) {
-    error(`your config file is invalid: ${parse.error.flatten()}`);
+  if (!config.success) {
+    error(
+      `something went wrong while reading the config: ${
+        config.error.flatten().fieldErrors.registrationEnabled
+      }`
+    );
     process.exit(1);
-   }
+  }
 
-   return parse.data;
+  return config.data;
 }
 
-export async function setupConfigFile() {
-   const file = Bun.file(`${env.DATA_DIR}/yals.toml`);
+async function writeConfig(config: Partial<ConfigData>) {
+  const existingConfig = await readConfig();
 
-   const config = await parseConfigFile(file);
-   return config;
+  const configToWrite: ConfigData = {
+    ...existingConfig,
+    ...config,
+  };
+
+  const stringifiedConfig = stringify(configToWrite);
+
+  await Bun.write(
+    configFile,
+    `# yals config
+# you can find the config reference on github https://github.com/thatgurkangurk/yals
+${stringifiedConfig}`
+  );
+}
+
+async function writeDefaultConfig() {
+  await Bun.write(configFile, stringify(defaultConfig));
+}
+
+async function addMissingKeys() {
+  const existingConfig = await readConfig();
+  const newConfig = await configSchema.parseAsync({
+    ...existingConfig,
+  });
+
+  await writeConfig(newConfig);
+}
+
+export async function initialiseConfig() {
+  const fileExists = await configFile.exists();
+
+  if (!fileExists) {
+    info("config file does not exist. writing default config");
+    await writeDefaultConfig();
+  }
+
+  await addMissingKeys();
+}
+
+export async function get<T extends ConfigKey>(key: T) {
+  const config = await readConfig();
+  const value = config[key];
+  return value;
+}
+
+export async function set<T extends ConfigKey>(key: T, value: ConfigData[T]) {
+  await writeConfig({
+    [key]: value,
+  });
 }
