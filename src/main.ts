@@ -1,13 +1,18 @@
 import { Hono } from "hono";
 import { box } from "@/lib/log";
+import { setupConfigFile, setupDataDir } from "./lib/config";
 
 const app = new Hono();
 app.get("/", (c) => c.text("yals"));
 app.get("/healthcheck", (c) => c.text("OK"));
 
-box("yals hono rewrite");
+await setupDataDir();
+const config = await setupConfigFile();
 
 export default {
-    port: 3000,
+    port: config.global.port,
     fetch: app.fetch
 }
+box(`yals
+version 0.4.0
+listening on port ${config.global.port}`);

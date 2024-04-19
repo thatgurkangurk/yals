@@ -1,0 +1,4 @@
+
+[global]
+registrationEnabled = true
+port = 3000
