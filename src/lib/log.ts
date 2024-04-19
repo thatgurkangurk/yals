@@ -1,34 +1,31 @@
 import { consola } from "consola";
 
 function info(message: string) {
-    consola.info(message);
+  consola.info(message);
 }
 
 function log(message: string) {
-    consola.log(message);
+  consola.log(message);
 }
 
 function warn(message: string) {
-    consola.warn(message);
+  consola.warn(message);
 }
 
 function error(message: string) {
-    consola.error(message);
+  consola.error(message);
 }
 
 function start(message: string) {
-    consola.start(message);
+  consola.start(message);
 }
 
 function box(message: string) {
-    consola.box(message);
+  consola.box(message);
 }
 
-export {
-    info,
-    log,
-    warn,
-    start,
-    error,
-    box
+function success(message: string) {
+  consola.success(message);
 }
+
+export { info, log, warn, start, error, box, success };
