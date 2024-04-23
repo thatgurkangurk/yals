@@ -4,29 +4,24 @@ import { generateId } from "lucia";
 import type { Actions } from "./$types";
 import { db } from "$lib/db";
 import { users } from "$lib/db/schema/user";
+import { registerFormSchema } from "$lib/server/user";
 
 export const actions: Actions = {
 	default: async (event) => {
 		const formData = await event.request.formData();
-		const username = formData.get("username");
-		const password = formData.get("password");
-		// username must be between 4 ~ 31 characters, and only consists of lowercase letters, 0-9, -, and _
-		// keep in mind some database (e.g. mysql) are case insensitive
-		if (
-			typeof username !== "string" ||
-			username.length < 3 ||
-			username.length > 31 ||
-			!/^[a-z0-9_-]+$/.test(username)
-		) {
-			return fail(400, {
-				message: "Invalid username"
-			});
-		}
-		if (typeof password !== "string" || password.length < 6 || password.length > 255) {
-			return fail(400, {
-				message: "Invalid password"
-			});
-		}
+		const user = {
+            username: String(formData.get("username")),
+            password: String(formData.get("password")),
+            passwordConfirm: String(formData.get("password-confirm"))
+        };
+		
+        const safeParse = registerFormSchema.safeParse(user);
+
+        if (!safeParse.success) {
+            return fail(400, { issues: safeParse.error.issues });
+        }
+
+        const { username, password } = safeParse.data;
 
 		const userId = generateId(15);
 		const hashedPassword = await Bun.password.hash(password, {
