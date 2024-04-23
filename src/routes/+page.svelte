@@ -13,8 +13,8 @@
 </p>
 
 {#if data.username}
-   <p>hello, {data.username}</p>
-   <form method="post" use:enhance>
-      <button>log out</button>
-   </form>
+  <p>hello, {data.username}</p>
+  <form method="post" action="/auth/logout" use:enhance>
+    <button>log out</button>
+  </form>
 {/if}
