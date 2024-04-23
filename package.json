@@ -2,6 +2,7 @@
   "name": "sveltekit-test",
   "version": "0.0.1",
   "devDependencies": {
+    "@lucia-auth/adapter-drizzle": "^1.0.7",
     "@sveltejs/kit": "^2.0.0",
     "@sveltejs/vite-plugin-svelte": "^3.0.0",
     "@t3-oss/env-core": "^0.10.0",
@@ -10,6 +11,7 @@
     "better-sqlite3": "^9.5.0",
     "drizzle-kit": "^0.20.17",
     "drizzle-orm": "^0.30.9",
+    "lucia": "^3.1.1",
     "nanoid": "^5.0.7",
     "ora": "^8.0.1",
     "postcss": "^8.4.38",
@@ -33,6 +35,8 @@
   },
   "trustedDependencies": [
     "@sveltejs/kit",
+    "better-sqlite3",
+    "es5-ext",
     "esbuild",
     "svelte-preprocess"
   ],
