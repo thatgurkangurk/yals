@@ -2,28 +2,23 @@ import { lucia } from "$lib/server/auth";
 import { fail, redirect } from "@sveltejs/kit";
 import type { Actions } from "./$types";
 import { db } from "$lib/db";
+import { loginFormSchema } from "$lib/server/user";
 
 export const actions: Actions = {
 	default: async (event) => {
 		const formData = await event.request.formData();
-		const username = formData.get("username");
-		const password = formData.get("password");
+		const user = {
+			username: String(formData.get("username")),
+			password: String(formData.get("password"))
+		}
 
-		if (
-			typeof username !== "string" ||
-			username.length < 3 ||
-			username.length > 31 ||
-			!/^[a-z0-9_-]+$/.test(username)
-		) {
-			return fail(400, {
-				message: "Invalid username"
-			});
+		const safeParse = loginFormSchema.safeParse(user);
+
+		if (!(safeParse.success)) {
+			return fail(400, { issues: safeParse.error.issues });
 		}
-		if (typeof password !== "string" || password.length < 6 || password.length > 255) {
-			return fail(400, {
-				message: "Invalid password"
-			});
-		}
+
+		const { username, password } = safeParse.data;
 
 		const existingUser = await db.query.users.findFirst({
 			where: (user, { eq }) => eq(user.username, username),

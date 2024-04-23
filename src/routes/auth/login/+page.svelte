@@ -1,5 +1,8 @@
 <script lang="ts">
 	import { enhance } from "$app/forms";
+    import ZodIssues from "$lib/components/ZodIssues.svelte";
+
+    export let form;
 </script>
 
 <h1>Sign in</h1>
@@ -10,3 +13,7 @@
 	<input type="password" name="password" id="password" /><br />
 	<button>Continue</button>
 </form>
+
+{#if form?.issues}
+    <ZodIssues issues={form.issues} />
+{/if}
