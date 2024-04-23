@@ -2,23 +2,30 @@ import { lucia } from "$lib/server/auth";
 import { fail, redirect } from "@sveltejs/kit";
 import type { Actions } from "./$types";
 import { db } from "$lib/db";
-import { loginFormSchema } from "$lib/server/user";
+import { loginFormSchema } from "$lib/user";
+import type { PageServerLoad } from "./$types";
+import { superValidate } from "sveltekit-superforms";
+import { zod } from "sveltekit-superforms/adapters";
+ 
+export const load: PageServerLoad = async (event) => {
+	if (event.locals.user) {
+		return redirect(302, "/");
+	}
+  return {
+    form: await superValidate(zod(loginFormSchema)),
+  };
+};
 
 export const actions: Actions = {
 	default: async (event) => {
-		const formData = await event.request.formData();
-		const user = {
-			username: String(formData.get("username")),
-			password: String(formData.get("password"))
+		const form = await superValidate(event, zod(loginFormSchema));
+		// const formData = await event.request.formData();
+
+		if (!(form.valid)) {
+			return fail(400, { form: form });
 		}
 
-		const safeParse = loginFormSchema.safeParse(user);
-
-		if (!(safeParse.success)) {
-			return fail(400, { issues: safeParse.error.issues });
-		}
-
-		const { username, password } = safeParse.data;
+		const { username, password } = form.data;
 
 		const existingUser = await db.query.users.findFirst({
 			where: (user, { eq }) => eq(user.username, username),
@@ -53,6 +60,8 @@ export const actions: Actions = {
 			...sessionCookie.attributes
 		});
 
-		redirect(302, "/");
+		return {
+			form,
+		}
 	}
 };

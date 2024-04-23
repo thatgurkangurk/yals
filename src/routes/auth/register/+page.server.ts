@@ -4,7 +4,7 @@ import { generateId } from "lucia";
 import type { Actions } from "./$types";
 import { db } from "$lib/db";
 import { users } from "$lib/db/schema/user";
-import { registerFormSchema } from "$lib/server/user";
+import { registerFormSchema } from "$lib/user";
 
 export const actions: Actions = {
 	default: async (event) => {
