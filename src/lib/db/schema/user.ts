@@ -1,5 +1,7 @@
+import { relations } from "drizzle-orm";
 import { sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { nanoid } from "nanoid";
+import { links } from "./link";
 
 const userRole = text("role", { enum: ["admin", "user"] })
   .notNull()
@@ -14,3 +16,7 @@ export const users = sqliteTable("user", {
   hashed_password: text("hashed_password").notNull(),
   role: userRole,
 });
+
+export const usersRelations = relations(users, ({ many }) => ({
+  links: many(links),
+}));
