@@ -4,7 +4,7 @@ import { links } from "./db/schema/link";
 import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
-function extractSlug(url: string): string {
+export function extractSlug(url: string): string {
   const parts = url.split("/");
   return parts[parts.length - 1];
 }
