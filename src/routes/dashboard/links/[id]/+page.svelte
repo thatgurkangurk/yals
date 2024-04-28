@@ -11,5 +11,5 @@
 
 <div>
   <h2>link: {data.link.slug}</h2>
-  <p>work in progress...</p>
+  <p>work in progress... clicks: {data.link.clicks}</p>
 </div>

@@ -1,6 +1,6 @@
 import type { User } from "lucia";
 import { db } from "./db";
-import { links } from "./db/schema/link";
+import { linkClicks, links } from "./db/schema/link";
 import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
@@ -44,4 +44,37 @@ async function createLink(slug: string, target: string, owner: User) {
   return createdLink[0];
 }
 
-export { getLinksWithAccess, getLinkById, getLinkBySlug, createLink };
+async function logLinkClick(slug: string) {
+  const link = await getLinkBySlug(slug);
+
+  console.log("logging link click");
+
+  const linkClick = await db
+    .insert(linkClicks)
+    .values({
+      id: nanoid(),
+      linkId: link.id,
+    })
+    .returning();
+}
+
+async function getLinkClicks(linkId: string) {
+  const link = await getLinkById(linkId);
+
+  if (!link) return null;
+
+  const clicks = await db.query.linkClicks.findMany({
+    where: (click, { eq }) => eq(click.linkId, link.id),
+  });
+
+  return clicks;
+}
+
+export {
+  logLinkClick,
+  getLinksWithAccess,
+  getLinkById,
+  getLinkBySlug,
+  createLink,
+  getLinkClicks,
+};
