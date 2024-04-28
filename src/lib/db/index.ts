@@ -16,4 +16,4 @@ const sqlite = new Database(`${env.DATA_DIR}/yals.db`, {
 });
 const db = drizzle(sqlite, { schema: schema });
 
-export { db };
+export { db, sqlite };

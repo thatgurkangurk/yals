@@ -1,9 +1,9 @@
-import { migrate } from "drizzle-orm/bun-sqlite/migrator";
-import { db } from "../src/lib/db";
+import { getMigrations, migrate } from "bun-sqlite-migrations";
+import { sqlite } from "../src/lib/db";
 import { startServer } from "./lib/server";
 
 try {
-  migrate(db, { migrationsFolder: "./drizzle" });
+  migrate(sqlite, getMigrations("./drizzle"));
 } catch (err) {
   console.error(err);
   process.exit(1);

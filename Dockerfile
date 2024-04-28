@@ -24,13 +24,20 @@ COPY . .
 # [optional] tests & build
 ENV NODE_ENV=production
 RUN bun run build
-RUN bun build ./scripts/start.ts --compile --outfile yals
 
 # copy production dependencies and source code into final image
 FROM base AS release
-COPY --from=prerelease /usr/src/app/yals .
+
+ENV DATA_DIR /data
+
+RUN mkdir /data
+COPY --from=prerelease /usr/src/app/drizzle ./drizzle/
+COPY --from=prerelease /usr/src/app/build ./build/
+COPY --from=prerelease /usr/src/app/scripts ./scripts/
+COPY --from=prerelease /usr/src/app/src/lib/db ./src/lib/db/
+COPY --from=prerelease /usr/src/app/src/env.ts ./src/env.ts
 
 # run the app
 USER bun
 EXPOSE 3000/tcp
-ENTRYPOINT [ "./yals" ]
+ENTRYPOINT [ "bun", "run", "scripts/start.ts" ]
