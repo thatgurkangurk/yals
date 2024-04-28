@@ -19,6 +19,14 @@
       alwaysActive: true,
     },
     {
+      href: "/",
+      text: "Home",
+    },
+    {
+      href: "/search",
+      text: "Link Searcher",
+    },
+    {
       href: "/dashboard",
       text: "Dashboard",
     },
