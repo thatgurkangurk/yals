@@ -1,21 +1,16 @@
-import { createEnv } from "@t3-oss/env-nextjs";
+import { createEnv } from "@t3-oss/env-core";
 import { z } from "zod";
 
 export const env = createEnv({
   server: {
+    DATA_DIR: z
+      .string()
+      .nullish()
+      .transform((s) => s ?? "./data"),
     NODE_ENV: z
       .enum(["production", "development", "test"])
-      .optional()
-      .default("development"),
-    DATA_DIR: z.string().optional(),
+      .nullish()
+      .transform((s) => s ?? "development"),
   },
-  // If you're using Next.js < 13.4.4, you'll need to specify the runtimeEnv manually
-  runtimeEnv: {
-    NODE_ENV: process.env.NODE_ENV,
-    DATA_DIR: process.env.DATA_DIR,
-  },
-  // For Next.js >= 13.4.4, you only need to destructure client variables:
-  // experimental__runtimeEnv: {
-  //   NEXT_PUBLIC_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_PUBLISHABLE_KEY,
-  // }
+  runtimeEnv: process.env,
 });

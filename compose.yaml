@@ -1,0 +1,10 @@
+services:
+  web:
+    build:
+      dockerfile: ./Dockerfile
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+    ports:
+      - 3000:3000
+    volumes:
+      - ./data:/data
