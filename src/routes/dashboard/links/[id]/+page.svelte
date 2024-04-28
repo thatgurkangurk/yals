@@ -1,11 +1,13 @@
 <script lang="ts">
-  import type { PageData } from "./$types";
+  import type { ActionData, PageData } from "./$types";
   import { Button } from "$lib/components/ui/button";
   import * as Alert from "$lib/components/ui/alert";
-  import { InfoIcon } from "lucide-svelte";
+  import { InfoIcon, OctagonAlert } from "lucide-svelte";
   import * as Card from "$lib/components/ui/card";
+  import { enhance } from "$app/forms";
 
   export let data: PageData;
+  export let form: ActionData;
 </script>
 
 <Button class="w-fit">
@@ -43,3 +45,17 @@
     </div>
   {/if}
 </div>
+
+{#if form?.error}
+  <Alert.Root>
+    <OctagonAlert class="h-4 w-4" />
+    <Alert.Title>error</Alert.Title>
+    <Alert.Description>
+      something went wrong when deleting: {form.error}
+    </Alert.Description>
+  </Alert.Root>
+{/if}
+
+<form method="post" action="?/delete" class="pt-4" use:enhance>
+  <Button type="submit" variant="destructive">delete</Button>
+</form>
