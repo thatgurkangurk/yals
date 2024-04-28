@@ -13,20 +13,23 @@
 <br />
 
 {#if data.links.length}
-  {#each data.links as link}
-    <h3 class="py-3 text-2xl">your links ({data.links.length})</h3>
-    <Card.Root>
-      <Card.Header class="pb-2">
-        <Card.Description>{link.id}</Card.Description>
-        <Card.Title class="text-4xl">{link.slug}</Card.Title>
-      </Card.Header>
-      <Card.Footer>
-        <Button>
-          <a href={`/dashboard/links/${link.id}`}>manage</a>
-        </Button>
-      </Card.Footer>
-    </Card.Root>
-  {/each}
+  <h3 class="py-3 text-2xl">your links ({data.links.length})</h3>
+
+  <div class="grid md:grid-cols-2 gap-2">
+    {#each data.links as link}
+      <Card.Root>
+        <Card.Header class="pb-2">
+          <Card.Description>{link.id}</Card.Description>
+          <Card.Title class="text-4xl">{link.slug}</Card.Title>
+        </Card.Header>
+        <Card.Footer>
+          <a href={`/dashboard/links/${link.id}`}>
+            <Button>manage</Button>
+          </a>
+        </Card.Footer>
+      </Card.Root>
+    {/each}
+  </div>
 {:else}
   <p>you do not have any links</p>
 {/if}
