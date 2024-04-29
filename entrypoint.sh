@@ -2,4 +2,4 @@ mkdir -p /data
 chown yals:bunjs /data -R
 chmod o+w /data -R
 
-bun run scripts/start.ts
+ORIGIN=$ORIGIN bun run scripts/start.ts
