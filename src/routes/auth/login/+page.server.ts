@@ -44,13 +44,15 @@ export const actions: Actions = {
       hashSync(password);
       return fail(400, {
         message: "Incorrect username or password",
+        form,
       });
     }
 
-    const validPassword = await verify(password, existingUser.hashed_password);
+    const validPassword = await verify(existingUser.hashed_password, password);
     if (!validPassword) {
       return fail(400, {
         message: "Incorrect username or password",
+        form,
       });
     }
 
