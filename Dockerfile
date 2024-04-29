@@ -45,9 +45,10 @@ COPY --from=prerelease --chown=yals:bunjs /usr/src/app/build ./build/
 COPY --from=prerelease --chown=yals:bunjs /usr/src/app/scripts ./scripts/
 COPY --from=prerelease --chown=yals:bunjs /usr/src/app/src/lib/db ./src/lib/db/
 COPY --from=prerelease --chown=yals:bunjs /usr/src/app/src/env.ts ./src/env.ts
+COPY --chown=yals:bunjs entrypoint.sh ./entrypoint.sh
 
 USER yals
 
 # run the app
 EXPOSE 3000/tcp
-ENTRYPOINT [ "bun", "run", "scripts/start.ts" ]
+ENTRYPOINT [ "entrypoint.sh" ]
