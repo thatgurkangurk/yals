@@ -1,5 +1,5 @@
-import { drizzle } from "drizzle-orm/bun-sqlite";
-import { Database } from "bun:sqlite";
+import { drizzle } from "drizzle-orm/better-sqlite3";
+import Database from "better-sqlite3";
 import { env } from "../../env";
 import * as userSchema from "./schema/user";
 import * as sessionSchema from "./schema/session";
@@ -12,8 +12,7 @@ const schema = {
 };
 
 const sqlite = new Database(`${env.DATA_DIR}/yals.db`, {
-  create: true,
-  readonly: false
+  readonly: false,
 });
 const db = drizzle(sqlite, { schema: schema });
 

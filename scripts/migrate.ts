@@ -1,21 +1,11 @@
-import { migrate } from "drizzle-orm/bun-sqlite/migrator";
-import { db } from "../src/lib/db";
-import ora from "ora";
+// @ts-check
+import { drizzle } from "drizzle-orm/better-sqlite3";
+import { migrate } from "drizzle-orm/better-sqlite3/migrator";
+import Database from "better-sqlite3";
+import { env } from "../src/env";
 
-const spinner = ora("migrating the database...");
+const betterSqlite = new Database(`${env.DATA_DIR}/yals.db`);
+const db = drizzle(betterSqlite);
+migrate(db, { migrationsFolder: "drizzle" });
 
-debugger;
-spinner.start();
-try {
-  migrate(db, { migrationsFolder: "./drizzle" });
-} catch (e) {
-  spinner.text = "something went wrong...";
-  spinner.fail();
-  console.error(e as string);
-  process.exit(1);
-} finally {
-  spinner.text = "migrated!";
-  spinner.succeed();
-
-  process.exit(0);
-}
+betterSqlite.close();
