@@ -19,6 +19,7 @@ RUN cd /temp/prod && bun install --frozen-lockfile --production
 # then copy all (non-ignored) project files into the image
 FROM base AS prerelease
 COPY --from=install /temp/dev/node_modules node_modules
+COPY --from=install /temp/dev/.svelte-kit .svelte-kit
 COPY . .
 
 # [optional] tests & build
