@@ -53,3 +53,4 @@ USER yals
 
 # run the app
 EXPOSE 3000/tcp
+ENTRYPOINT ["bash", "entrypoint.sh"]
