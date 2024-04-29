@@ -32,7 +32,7 @@
     "db:migrate:create": "drizzle-kit generate:sqlite --config drizzle.config.ts",
     "db:migrate": "bun run scripts/migrate.ts",
     "dev": "bun run --bun vite dev",
-    "build": "bun run --bun vite build",
+    "build": "rm -rf build && bun x --bun vite build",
     "preview": "bun run --bun vite preview",
     "check": "bun run --bun svelte-kit sync && bun run --bun svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "bun run --bun svelte-kit sync && bun run --bun svelte-check --tsconfig ./tsconfig.json --watch"

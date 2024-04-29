@@ -23,7 +23,7 @@ COPY . .
 
 # [optional] tests & build
 ENV NODE_ENV=production
-RUN bun --bun svelte-kit sync
+RUN bun x --bun svelte-kit sync
 RUN bun run build
 
 # copy production dependencies and source code into final image
