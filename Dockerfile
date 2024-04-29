@@ -38,7 +38,8 @@ RUN adduser --system --uid 1001 yals
 ENV DATA_DIR /data
 
 RUN mkdir /data
-RUN chown yals:bunjs /data
+RUN chown yals:bunjs /data -R
+RUN chmod o+w /data -R
 COPY --from=prerelease --chown=yals:bunjs /usr/src/app/drizzle ./drizzle/
 COPY --from=prerelease --chown=yals:bunjs /usr/src/app/build ./build/
 COPY --from=prerelease --chown=yals:bunjs /usr/src/app/scripts ./scripts/
