@@ -13,6 +13,7 @@ const schema = {
 
 const sqlite = new Database(`${env.DATA_DIR}/yals.db`, {
   create: true,
+  readonly: false
 });
 const db = drizzle(sqlite, { schema: schema });
 
