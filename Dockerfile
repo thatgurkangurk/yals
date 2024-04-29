@@ -22,6 +22,9 @@ WORKDIR /usr/src/app
 COPY --from=install /temp/dev/node_modules node_modules
 COPY . .
 
+ENV DATA_DIR /data
+RUN mkdir /data
+
 # [optional] tests & build
 ENV NODE_ENV=production
 RUN bun x --bun svelte-kit sync
