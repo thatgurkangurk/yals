@@ -4,6 +4,8 @@ services:
       dockerfile: ./Dockerfile
     stdin_open: true # docker run -i
     tty: true        # docker run -t
+    environment:
+      - ORIGIN=http://localhost:3000
     ports:
       - 3000:3000
     volumes:
