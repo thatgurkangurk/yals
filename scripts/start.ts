@@ -5,7 +5,7 @@ import { env } from "../src/env";
 import { existsSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 
-function setupDataDir() {
+async function setupDataDir() {
    if (existsSync(env.DATA_DIR)) {
      console.log(`data dir is ${env.DATA_DIR}`);
      return;
@@ -15,7 +15,7 @@ function setupDataDir() {
 }
 
 try {
-  setupDataDir();
+  await setupDataDir();
   migrate(db, { migrationsFolder: "./drizzle" });
 } catch (err) {
   console.error(err);
