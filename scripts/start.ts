@@ -36,9 +36,9 @@ try {
 } catch (err) {
   console.error(err);
   process.exit(1);
+} finally {
+  startServer();
 }
-
-startServer();
 
 process.on("SIGTERM", () => {
   process.exit(0);
