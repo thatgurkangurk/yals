@@ -15,6 +15,13 @@
       "when": 1713896868849,
       "tag": "0001_strange_carnage",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1714417220503,
+      "tag": "0002_solid_phil_sheldon",
+      "breakpoints": true
     }
   ]
 }

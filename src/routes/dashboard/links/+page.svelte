@@ -6,8 +6,6 @@
   export let data: PageData;
 </script>
 
-<h1>dashboard</h1>
-
 <a href="/dashboard/links/create"><Button>create a link</Button></a>
 
 <br />

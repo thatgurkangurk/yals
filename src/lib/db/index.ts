@@ -4,11 +4,13 @@ import { env } from "../../env";
 import * as userSchema from "./schema/user";
 import * as sessionSchema from "./schema/session";
 import * as linkSchema from "./schema/link";
+import * as serverSettingsSchema from "./schema/serverSettings";
 
 const schema = {
   ...userSchema,
   ...sessionSchema,
   ...linkSchema,
+  ...serverSettingsSchema,
 };
 
 const sqlite = new Database(`${env.DATA_DIR}/yals.db`, {

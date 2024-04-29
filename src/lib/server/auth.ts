@@ -4,32 +4,32 @@ import { db } from "$lib/db";
 import { DrizzleSQLiteAdapter } from "@lucia-auth/adapter-drizzle";
 import { sessions } from "$lib/db/schema/session";
 import { users } from "$lib/db/schema/user";
-import type { InferInsertModel } from "drizzle-orm";
 
 const adapter = new DrizzleSQLiteAdapter(db, sessions, users);
 
 export const lucia = new Lucia(adapter, {
-    sessionCookie: {
-        attributes: {
-            secure: !dev
-        }
+  sessionCookie: {
+    attributes: {
+      secure: !dev,
     },
-    getUserAttributes: (attributes) => {
-		return {
-			username: attributes.username
-		};
-	}
+  },
+  getUserAttributes: (attributes) => {
+    return {
+      username: attributes.username,
+      role: attributes.role,
+    };
+  },
 });
 
 declare module "lucia" {
-    interface Register {
-      Lucia: typeof lucia;
-      DatabaseUserAttributes: Omit<InferInsertModel<typeof users>, "hashed_password">;
-    }
+  interface Register {
+    Lucia: typeof lucia;
+    DatabaseUserAttributes: DatabaseUserAttributes;
+  }
 }
-  
+
 interface DatabaseUserAttributes {
-    id: string;
-    username: string;
-    role: "admin" | "user";
+  id: string;
+  username: string;
+  role: "admin" | "user";
 }
