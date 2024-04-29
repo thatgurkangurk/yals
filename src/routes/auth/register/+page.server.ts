@@ -7,6 +7,7 @@ import { users } from "$lib/db/schema/user";
 import { registerFormSchema } from "$lib/user";
 import { setError, superValidate } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";
+import { hash } from "@node-rs/argon2";
 
 export const load: PageServerLoad = async (event) => {
   if (event.locals.user) {
@@ -28,9 +29,7 @@ export const actions: Actions = {
     const { username, password } = form.data;
 
     const userId = generateId(15);
-    const hashedPassword = await Bun.password.hash(password, {
-      algorithm: "argon2id",
-    });
+    const hashedPassword = await hash(password);
 
     const userExists = await db.query.users.findFirst({
       where: (user, { eq }) => eq(user.username, username),

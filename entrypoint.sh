@@ -1,9 +1,9 @@
 mkdir -p /data
-chown yals:bunjs /data -R
+chown yals:nodejs /data -R
 chmod o+w /data -R
 
 # Command to run
-cmd="bun run scripts/start.ts"
+cmd="node build"
 
 if [ -n "$ORIGIN" ]; then
     cmd="ORIGIN=$ORIGIN $cmd"
