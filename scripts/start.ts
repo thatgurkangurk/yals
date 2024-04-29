@@ -6,7 +6,7 @@ import { existsSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 
 function setupDataDir() {
-   if (existsSync(env.DATA_DIR) {
+   if (existsSync(env.DATA_DIR)) {
      console.log(`data dir is ${env.DATA_DIR}`);
      return;
    }
