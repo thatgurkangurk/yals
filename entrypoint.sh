@@ -14,7 +14,7 @@ if [ -n "$PROTOCOL_HEADER" ]; then
 fi
 
 if [ -n "$HOST_HEADER" ]; then
-    cmd="HOST_HEADER=$ORIGIN_HEADER $cmd"
+    cmd="HOST_HEADER=$HOST_HEADER $cmd"
 fi
 
 # Execute the command
