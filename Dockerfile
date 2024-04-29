@@ -53,4 +53,5 @@ RUN chmod +x entrypoint.sh
 
 # run the app
 EXPOSE 3000/tcp
+ENV ORIGIN=http://localhost:3000
 ENTRYPOINT ["bash", "entrypoint.sh"]
