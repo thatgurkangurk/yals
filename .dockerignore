@@ -16,3 +16,4 @@ coverage*
 data/
 .next/
 build/
+.svelte-kit/
