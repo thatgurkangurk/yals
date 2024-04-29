@@ -41,12 +41,15 @@ export const actions: Actions = {
       return fail(400, { form: form });
     }
 
-    await db.insert(users).values({
-      id: userId,
-      username: username,
-      hashed_password: hashedPassword,
-    });
-
+    try {
+      await db.insert(users).values({
+        id: userId,
+        username: username,
+        hashed_password: hashedPassword,
+      });
+    } catch (e) {
+      console.error(e);
+    }
     const session = await lucia.createSession(userId, {});
     const sessionCookie = lucia.createSessionCookie(session.id);
     event.cookies.set(sessionCookie.name, sessionCookie.value, {
