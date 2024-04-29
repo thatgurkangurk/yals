@@ -49,7 +49,7 @@ COPY --chown=yals:bunjs ./entrypoint.sh ./entrypoint.sh
 
 RUN chmod +x entrypoint.sh
 
-USER yals
+# USER yals
 
 # run the app
 EXPOSE 3000/tcp
