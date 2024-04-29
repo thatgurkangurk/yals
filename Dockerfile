@@ -32,17 +32,21 @@ RUN bun run build
 
 # copy production dependencies and source code into final image
 FROM base AS release
+RUN addgroup --system --gid 1001 bun
+RUN adduser --system --uid 1001 yals
 
 ENV DATA_DIR /data
 
 RUN mkdir /data
-COPY --from=prerelease /usr/src/app/drizzle ./drizzle/
-COPY --from=prerelease /usr/src/app/build ./build/
-COPY --from=prerelease /usr/src/app/scripts ./scripts/
-COPY --from=prerelease /usr/src/app/src/lib/db ./src/lib/db/
-COPY --from=prerelease /usr/src/app/src/env.ts ./src/env.ts
+RUN chown yals:bun /data
+COPY --from=prerelease --chown=yals:bun /usr/src/app/drizzle ./drizzle/
+COPY --from=prerelease --chown=yals:bun /usr/src/app/build ./build/
+COPY --from=prerelease --chown=yals:bun /usr/src/app/scripts ./scripts/
+COPY --from=prerelease --chown=yals:bun /usr/src/app/src/lib/db ./src/lib/db/
+COPY --from=prerelease --chown=yals:bun /usr/src/app/src/env.ts ./src/env.ts
+
+USER yals
 
 # run the app
-USER bun
 EXPOSE 3000/tcp
 ENTRYPOINT [ "bun", "run", "scripts/start.ts" ]
