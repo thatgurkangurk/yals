@@ -9,6 +9,7 @@
   import { navigating } from "$app/stores";
   import nProgress from "nprogress";
   import { Toaster } from "$lib/components/ui/sonner";
+  import Footer from "$lib/components/footer.svelte";
 
   export let data: LayoutServerData;
 
@@ -39,11 +40,15 @@
   href={SpaceGrotesk}
 />
 
-<div class="flex min-h-screen w-full flex-col">
+<div class="min-h-[100dvh] w-full flex flex-col">
   <Toaster />
   <Navbar />
 
-  <main class="p-4">
+  <main class="p-2 flex-grow">
     <slot />
   </main>
+
+  {#if data.settings.footerEnabled}
+      <Footer />
+  {/if}
 </div>
