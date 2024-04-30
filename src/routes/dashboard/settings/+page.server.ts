@@ -34,4 +34,20 @@ export const actions: Actions = {
       })
       .where(eq(serverSettings.id, 1));
   },
+  footer: async (event) => {
+    if (!event.locals.user || event.locals.user.role !== "admin")
+      return fail(403, {
+        success: false,
+        message: "you do not have permission to do that",
+      });
+
+    const settings = await getServerSettingsOrInit();
+
+    await db
+      .update(serverSettings)
+      .set({
+        footerEnabled: !settings.footerEnabled,
+      })
+      .where(eq(serverSettings.id, 1));
+  },
 };

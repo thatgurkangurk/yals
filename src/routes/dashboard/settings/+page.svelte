@@ -3,6 +3,7 @@
   import { toast } from "svelte-sonner";
   import type { PageData } from "./$types";
   import EnableRegistration from "./options/enable-registration.svelte";
+  import EnableFooter from "./options/enable-footer.svelte";
   import { CheckCircleIcon } from "lucide-svelte";
   import { invalidate, invalidateAll } from "$app/navigation";
 
@@ -33,4 +34,5 @@
   class="pt-4 grid md:grid-cols-4 gap-2"
 >
   <EnableRegistration isEnabled={data.settings.registrationEnabled} />
+  <EnableFooter isEnabled={data.settings.footerEnabled} />
 </form>
