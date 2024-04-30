@@ -1,15 +1,11 @@
 import { lucia } from "$lib/server/auth";
 import { fail, redirect } from "@sveltejs/kit";
-import { generateId } from "lucia";
 import type { Actions, PageServerLoad } from "./$types";
-import { db } from "$lib/db";
-import { users } from "$lib/db/schema/user";
 import { registerFormSchema } from "$lib/user";
 import { setError, superValidate } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";
 import { getServerSettingsOrInit } from "$lib/serverSettings";
-import { hashPassword } from "$lib/server/password";
-import { userExists } from "$lib/server/user";
+import { createUser } from "$lib/server/user";
 
 export const load: PageServerLoad = async (event) => {
   if (event.locals.user) {
@@ -40,24 +36,27 @@ export const actions: Actions = {
 
     const { username, password } = form.data;
 
-    const userId = generateId(15);
-    const hashedPassword = await hashPassword(password);
+    const result = await createUser({
+      username,
+      password
+    });
 
-    if (await userExists(username)) {
-      setError(form, "username", "username is not unique");
-      return fail(400, { form: form });
+    if (!result.success) {
+      switch (result.cause) {
+        case "USER_EXISTS": {
+          setError(form, "username", "a user with that username already exists");
+          return fail(409, { form: form });
+        }
+        case "UNEXPECTED_ERROR": {
+          setError(form, "something unexpected went wrong, please try again later");
+          return fail(500, { form: form });
+        }
+      }
     }
 
-    try {
-      await db.insert(users).values({
-        id: userId,
-        username: username,
-        hashed_password: hashedPassword,
-      });
-    } catch (e) {
-      console.error(e);
-    }
-    const session = await lucia.createSession(userId, {});
+    const { user } = result;
+    
+    const session = await lucia.createSession(user.id, {});
     const sessionCookie = lucia.createSessionCookie(session.id);
     event.cookies.set(sessionCookie.name, sessionCookie.value, {
       path: ".",
