@@ -8,6 +8,7 @@
   import { setUser } from "$lib/context";
   import { navigating } from "$app/stores";
   import nProgress from "nprogress";
+  import { Toaster } from "$lib/components/ui/sonner";
 
   export let data: LayoutServerData;
 
@@ -39,6 +40,7 @@
 />
 
 <div class="flex min-h-screen w-full flex-col">
+  <Toaster />
   <Navbar />
 
   <main class="p-4">

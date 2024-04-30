@@ -5,7 +5,7 @@
   export let alwaysActive = false;
   export let onClick: () => void = () => null;
 
-  let isActive = $page.url.pathname === href || alwaysActive;
+  $: isActive = $page.url.pathname === href || alwaysActive;
 </script>
 
 <a
