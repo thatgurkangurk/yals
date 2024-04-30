@@ -6,7 +6,7 @@ import { loginFormSchema } from "$lib/user";
 import type { PageServerLoad } from "./$types";
 import { superValidate } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";
-import { hashSync, verify } from "@node-rs/argon2";
+import { hashPassword, verifyPassword } from "$lib/server/password";
 
 export const load: PageServerLoad = async (event) => {
   if (event.locals.user) {
@@ -41,14 +41,14 @@ export const actions: Actions = {
       // Since protecting against this is non-trivial,
       // it is crucial your implementation is protected against brute-force attacks with login throttling etc.
       // If usernames are public, you may outright tell the user that the username is invalid.
-      hashSync(password);
+      await hashPassword(password);
       return fail(400, {
         message: "Incorrect username or password",
         form,
       });
     }
 
-    const validPassword = await verify(existingUser.hashed_password, password);
+    const validPassword = await verifyPassword(existingUser.hashed_password, password);
     if (!validPassword) {
       return fail(400, {
         message: "Incorrect username or password",

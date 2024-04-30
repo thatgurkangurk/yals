@@ -7,8 +7,8 @@ import { users } from "$lib/db/schema/user";
 import { registerFormSchema } from "$lib/user";
 import { setError, superValidate } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";
-import { hash } from "@node-rs/argon2";
 import { getServerSettingsOrInit } from "$lib/serverSettings";
+import { hashPassword } from "$lib/server/password";
 
 export const load: PageServerLoad = async (event) => {
   if (event.locals.user) {
@@ -40,7 +40,7 @@ export const actions: Actions = {
     const { username, password } = form.data;
 
     const userId = generateId(15);
-    const hashedPassword = await hash(password);
+    const hashedPassword = await hashPassword(password);
 
     const userExists = await db.query.users.findFirst({
       where: (user, { eq }) => eq(user.username, username),
