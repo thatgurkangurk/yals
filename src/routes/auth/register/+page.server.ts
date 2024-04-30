@@ -1,4 +1,3 @@
-import { lucia } from "$lib/server/auth";
 import { fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import { registerFormSchema } from "$lib/user";
@@ -6,6 +5,7 @@ import { setError, superValidate } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";
 import { getServerSettingsOrInit } from "$lib/serverSettings";
 import { createUser } from "$lib/server/user";
+import { createSessionCookie } from "$lib/server/session";
 
 export const load: PageServerLoad = async (event) => {
   if (event.locals.user) {
@@ -56,8 +56,7 @@ export const actions: Actions = {
 
     const { user } = result;
     
-    const session = await lucia.createSession(user.id, {});
-    const sessionCookie = lucia.createSessionCookie(session.id);
+    const sessionCookie = await createSessionCookie(user);
     event.cookies.set(sessionCookie.name, sessionCookie.value, {
       path: ".",
       ...sessionCookie.attributes,

@@ -7,6 +7,7 @@ import { superValidate } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";
 import { hashPassword, verifyPassword } from "$lib/server/password";
 import { userExists } from "$lib/server/user";
+import { createSessionCookie } from "$lib/server/session";
 
 export const load: PageServerLoad = async (event) => {
   if (event.locals.user) {
@@ -52,11 +53,10 @@ export const actions: Actions = {
       return fail(400, {
         message: "Incorrect username or password",
         form,
-      });
+      });   
     }
 
-    const session = await lucia.createSession(existingUser.id, {});
-    const sessionCookie = lucia.createSessionCookie(session.id);
+    const sessionCookie = await createSessionCookie(existingUser);
     event.cookies.set(sessionCookie.name, sessionCookie.value, {
       path: ".",
       ...sessionCookie.attributes,
