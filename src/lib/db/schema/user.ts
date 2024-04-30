@@ -3,7 +3,7 @@ import { sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { nanoid } from "nanoid";
 import { links } from "./link";
 
-const userRole = text("role", { enum: ["admin", "user"] })
+export const userRole = text("role", { enum: ["admin", "user"] })
   .notNull()
   .default("user");
 

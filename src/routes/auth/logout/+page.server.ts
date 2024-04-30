@@ -1,7 +1,7 @@
-import { lucia } from "$lib/server/auth";
 import { redirect } from "@sveltejs/kit";
 import { fail } from "sveltekit-superforms";
 import type { Actions } from "./$types";
+import { invalidateSession } from "$lib/server/session";
 
 export const actions: Actions = {
   default: async (event) => {
@@ -9,12 +9,7 @@ export const actions: Actions = {
       return fail(401);
     }
 
-    await lucia.invalidateSession(event.locals.session.id);
-    const sessionCookie = lucia.createBlankSessionCookie();
-    event.cookies.set(sessionCookie.name, sessionCookie.value, {
-      path: ".",
-      ...sessionCookie.attributes,
-    });
+    await invalidateSession(event.locals.session, event);
 
     redirect(302, "/auth/login");
   },
