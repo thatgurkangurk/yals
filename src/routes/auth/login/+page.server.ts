@@ -1,12 +1,12 @@
 import { lucia } from "$lib/server/auth";
 import { fail, redirect } from "@sveltejs/kit";
 import type { Actions } from "./$types";
-import { db } from "$lib/db";
 import { loginFormSchema } from "$lib/user";
 import type { PageServerLoad } from "./$types";
 import { superValidate } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";
 import { hashPassword, verifyPassword } from "$lib/server/password";
+import { userExists } from "$lib/server/user";
 
 export const load: PageServerLoad = async (event) => {
   if (event.locals.user) {
@@ -28,9 +28,8 @@ export const actions: Actions = {
 
     const { username, password } = form.data;
 
-    const existingUser = await db.query.users.findFirst({
-      where: (user, { eq }) => eq(user.username, username),
-    });
+    const existingUser = await userExists(username);
+
     if (!existingUser) {
       // NOTE:
       // Returning immediately allows malicious actors to figure out valid usernames from response times,

@@ -9,6 +9,7 @@ import { setError, superValidate } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";
 import { getServerSettingsOrInit } from "$lib/serverSettings";
 import { hashPassword } from "$lib/server/password";
+import { userExists } from "$lib/server/user";
 
 export const load: PageServerLoad = async (event) => {
   if (event.locals.user) {
@@ -42,11 +43,7 @@ export const actions: Actions = {
     const userId = generateId(15);
     const hashedPassword = await hashPassword(password);
 
-    const userExists = await db.query.users.findFirst({
-      where: (user, { eq }) => eq(user.username, username),
-    });
-
-    if (userExists) {
+    if (await userExists(username)) {
       setError(form, "username", "username is not unique");
       return fail(400, { form: form });
     }
