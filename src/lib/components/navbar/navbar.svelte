@@ -3,8 +3,8 @@
   import * as Sheet from "../ui/sheet";
   import Menu from "lucide-svelte/icons/menu";
   import NavLink from "./navlink.svelte";
-  import UserMenu from "./user-menu.svelte";
   import { writable } from "svelte/store";
+  import UserDropdown from "./user-dropdown.svelte";
 
   type Link = {
     href: string;
@@ -80,6 +80,6 @@
     class="justify-items-end flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4"
   >
     <div class="ml-auto flex-1 sm:flex-initial"></div>
-    <UserMenu />
+    <UserDropdown />
   </div>
 </header>

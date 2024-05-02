@@ -48,7 +48,7 @@
     "@sveltejs/adapter-node": "^5.0.1",
     "@t3-oss/env-core": "^0.10.1",
     "better-sqlite3": "^9.6.0",
-    "bits-ui": "^0.21.5",
+    "bits-ui": "^0.21.6",
     "bun-sqlite-migrations": "^1.0.2",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.30.9",

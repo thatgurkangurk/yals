@@ -18,7 +18,7 @@ dependencies:
     specifier: ^9.6.0
     version: 9.6.0
   bits-ui:
-    specifier: ^0.21.5
+    specifier: ^0.21.6
     version: 0.21.6(svelte@4.2.15)
   bun-sqlite-migrations:
     specifier: ^1.0.2
